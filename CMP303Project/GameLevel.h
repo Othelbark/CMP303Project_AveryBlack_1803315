@@ -70,6 +70,19 @@ protected:
 	PlayerObject player;
 	OpponetObject opponent;
 
+	// Towers back
+	sf::Texture towerLeftBackTexture;
+	GameObject towerLeftBack;
+	sf::Texture towerRightBackTexture;
+	GameObject towerRightBack;
+
+	// Towers front
+	sf::Texture towerLeftFrontTexture;
+	GameObject towerLeftFront;
+	sf::Texture towerRightFrontTexture;
+	GameObject towerRightFront;
+
+
 	// Ground
 	sf::Texture groundTexture;
 	GameObject ground;

@@ -44,8 +44,29 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		opponent.setPosition(pos);
 	}
 
+	// towers back
+	towerLeftBackTexture.loadFromFile("gfx/Back_layer_tower_left.png");
+	towerLeftBack.setTexture(&towerLeftBackTexture);
+	towerLeftBack.setSize(sf::Vector2f(350, 382));
+	towerLeftBack.setPosition(sf::Vector2f(0, 338));
+	towerRightBackTexture.loadFromFile("gfx/Back_layer_tower_right.png");
+	towerRightBack.setTexture(&towerRightBackTexture);
+	towerRightBack.setSize(sf::Vector2f(350, 382));
+	towerRightBack.setPosition(sf::Vector2f(930, 338));
 
-	int tileScaleFactor = 4;
+	// towers front
+	towerLeftFrontTexture.loadFromFile("gfx/Front_layer_tower_left.png");
+	towerLeftFront.setTexture(&towerLeftFrontTexture);
+	towerLeftFront.setSize(sf::Vector2f(350, 382));
+	towerLeftFront.setPosition(sf::Vector2f(0, 338));
+	towerLeftFront.setCollisionBox(0, 10, 350, 50);
+	towerRightFrontTexture.loadFromFile("gfx/Front_layer_tower_right.png");
+	towerRightFront.setTexture(&towerRightFrontTexture);
+	towerRightFront.setSize(sf::Vector2f(350, 382));
+	towerRightFront.setPosition(sf::Vector2f(930, 338));
+	towerRightFront.setCollisionBox(0, 10, 350, 50);
+
+
 
 	// ground
 	groundTexture.loadFromFile("gfx/Front_grass_layer.png");
@@ -178,9 +199,18 @@ void GameLevel::render()
 
 	//draw background
 	window->draw(background);
+	
+	//draw towers back
+	window->draw(towerLeftBack);
+	window->draw(towerRightBack);
 
+	//draw players
 	window->draw(player);
 	window->draw(opponent);
+
+	//draw towers back
+	window->draw(towerLeftFront);
+	window->draw(towerRightFront);
 
 	//draw forground
 	window->draw(ground);
@@ -297,13 +327,21 @@ void GameLevel::updateGame(float dt)
 	player.update(dt);
 	opponent.update(dt);
 
-	if (Collision::checkBoundingBox(&player, &ground))
+	if (Collision::checkBoundingBox(&player, &towerLeftFront))
 	{
-		player.collisionResponse(&ground);
+		player.collisionResponse(&towerLeftFront);
 	}
-	if (Collision::checkBoundingBox(&opponent, &ground))
+	if (Collision::checkBoundingBox(&player, &towerRightFront))
 	{
-		opponent.collisionResponse(&ground);
+		player.collisionResponse(&towerRightFront);
+	}
+	if (Collision::checkBoundingBox(&opponent, &towerLeftFront))
+	{
+		opponent.collisionResponse(&towerLeftFront);
+	}
+	if (Collision::checkBoundingBox(&opponent, &towerRightFront))
+	{
+		opponent.collisionResponse(&towerRightFront);
 	}
 
 
