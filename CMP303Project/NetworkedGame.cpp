@@ -11,6 +11,7 @@ NetworkedGame::NetworkedGame()
 	targetGameState.setCurrentState(State::MENU);
 	currentGameState.setCurrentState(State::MENU);
 	startTime = 0; //time to change to currentGameState to targetGameState
+	startGameDelay = 1.5f; //current time + startGameDelay = startTime
 
 	// Initalse networkState
 	networkState.setCurrentState(NState::NOT_CONNECTED);
@@ -23,10 +24,11 @@ NetworkedGame::NetworkedGame()
 	// Initialise for delta time
 	deltaTimeAsSeconds = 0;
 	totalTime = 0;
-	tickrateTestTime = 0;
 
-	// Local imgui compatable version of IPBytes
-	IPBytesAsInts[0] = 127; IPBytesAsInts[1] = 0; IPBytesAsInts[2] = 0; IPBytesAsInts[3] = 1;
+	// Imgui variables
+	IPBytesAsInts[0] = 127; IPBytesAsInts[1] = 0; IPBytesAsInts[2] = 0; IPBytesAsInts[3] = 1;// Local imgui compatable version of IPBytes
+	tickrateTestTime = 0;
+	displayGUIInGame = false;
 
 	// Networking thread
 	networkingThread = std::thread(&NetworkedGame::networking, this, &totalTime, window, &networkingThreadInput, &networkingThreadOutput);
@@ -62,59 +64,8 @@ void NetworkedGame::run()
 	// Game Loop
 	while (window->isOpen())
 	{
-		// Handle window events.
-		input.resetClickedReleased(); // Reset the additional clicked and released bool arrays in input
-		sf::Event event;
-		while (window->pollEvent(event))
-		{
-			ImGui::SFML::ProcessEvent(event);
-			switch (event.type)
-			{
-			case sf::Event::Closed:
-				window->close();
-				break;
-			case sf::Event::Resized:
-				window->setView(sf::View(sf::FloatRect(0.f, 0.f, (float)event.size.width, (float)event.size.height)));
-				break;
-			case sf::Event::KeyPressed:
-				// update input class
-				input.setKeyDown(event.key.code);
-				break;
-			case sf::Event::KeyReleased:
-				//update input class
-				input.setKeyUp(event.key.code);
-				break;
-			case sf::Event::MouseMoved:
-				//update input class
-				input.setMousePosition(event.mouseMove.x, event.mouseMove.y);
-				break;
-			case sf::Event::MouseButtonPressed:
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					//update input class
-					input.setMouseLDown(true);
-				}
-				else if (event.mouseButton.button == sf::Mouse::Right)
-				{
-					input.setMouseRDown(true);
-				}
-				break;
-			case sf::Event::MouseButtonReleased:
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					//update input class
-					input.setMouseLDown(false);
-				}
-				else if (event.mouseButton.button == sf::Mouse::Right)
-				{
-					input.setMouseRDown(false);
-				}
-				break;
-			default:
-				// don't handle other events
-				break;
-			}
-		}
+		//manage input
+		windowEvents();
 
 
 		//update networkState
@@ -141,72 +92,8 @@ void NetworkedGame::run()
 		}
 
 
-		// Handle level changes
-		if (currentGameState.getCurrentState() == State::LEVEL_ONE && targetGameState.getCurrentState() == State::LEVEL_ONE && networkState.getCurrentState() == NState::NOT_CONNECTED)
-		{
-			//oponent disconnected
-			if (currentLevel != nullptr)
-			{
-				currentLevel->opponentQuit();
-			}
-		}
-		if (currentGameState.getCurrentState() != targetGameState.getCurrentState())
-		{
-			if (targetGameState.getCurrentState() == State::LEVEL_ONE)
-			{
-				if (startTime == 0)
-				{
-					startTime = totalTime + 2.0f;
-				}
-				else if (startTime <= totalTime)
-				{
-					delete currentLevel;
-					currentLevel = new GameLevel(window, &input, &targetGameState, &audioManager, &networkState);
-					currentGameState.setCurrentState(targetGameState.getCurrentState());
-					startTime = 0;
-				}
-
-				if (networkingThreadOutput.hosting && sendPacketsThisLoop) //tell the client that the host is starting the game
-				{
-					sf::Packet GameStartPacket;
-					GameStartPacket << GAME_START_PACKET;
-					GameStartPacket << GAME_START_PACKET;
-					GameStartPacket << startTime;
-
-					networkingThreadInput.inputQueue.enqueue(GameStartPacket);
-				}
-			}
-			else if (targetGameState.getCurrentState() == State::QUITING)
-			{
-				if (sendPacketsThisLoop) //tell the other player you have resigned
-				{
-					sf::Packet GameQuitPacket;
-					GameQuitPacket << QUIT_GAME_PACKET;
-					GameQuitPacket << QUIT_GAME_PACKET;
-
-					networkingThreadInput.inputQueue.enqueue(GameQuitPacket);
-				}
-				if (currentLevel != nullptr && currentGameState.getCurrentState() != State::FINISHED)
-				{
-					currentGameState.setCurrentState(State::FINISHED); //set current game state to finished so that we know to re-start if target game state is set to level one
-				}
-			}
-			else if (targetGameState.getCurrentState() == State::FINISHED)
-			{
-				if (currentLevel != nullptr)
-				{
-					currentGameState.setCurrentState(State::FINISHED); //set current game state to finished so that we know to re-start if target game state is set to level one
-				}
-			}
-			else
-			{
-				//delete the currently loaded level
-				delete currentLevel;
-				currentLevel = nullptr;
-
-				currentGameState.setCurrentState(targetGameState.getCurrentState());
-			}
-		}
+		//handle the effects of gameState changes
+		levelChanges();
 
 
 		// Calculate delta time. How much time has passed 
@@ -314,7 +201,10 @@ void NetworkedGame::run()
 			sendPacketsThisLoop = false;
 		}
 
+
+		//Imgui
 		gui();
+
 
 		//display the game + imgui
 		window->display();
@@ -332,84 +222,215 @@ void NetworkedGame::run()
 	ImGui::SFML::Shutdown();
 }
 
-void NetworkedGame::gui()
+void NetworkedGame::windowEvents()
 {
-	//ImGui stuff
-	ImGui::SFML::Update(*window, deltaTime);
-
-	ImGui::Begin("Sample window"); // begin window
-
-	if (!networkingThreadOutput.connected) //if not connected or hosting
+	// Handle window events.
+	input.resetClickedReleased(); // Reset the additional clicked and released bool arrays in input
+	sf::Event event;
+	while (window->pollEvent(event))
 	{
-		if (!networkingThreadOutput.connectingToHost)
+		ImGui::SFML::ProcessEvent(event);
+		switch (event.type)
 		{
-			if (ImGui::InputInt4("IP Address", IPBytesAsInts))
+		case sf::Event::Closed:
+			window->close();
+			break;
+		case sf::Event::Resized:
+			window->setView(sf::View(sf::FloatRect(0.f, 0.f, (float)event.size.width, (float)event.size.height)));
+			break;
+		case sf::Event::KeyPressed:
+			// update input class
+			input.setKeyDown(event.key.code);
+			break;
+		case sf::Event::KeyReleased:
+			//update input class
+			input.setKeyUp(event.key.code);
+			break;
+		case sf::Event::MouseMoved:
+			//update input class
+			input.setMousePosition(event.mouseMove.x, event.mouseMove.y);
+			break;
+		case sf::Event::MouseButtonPressed:
+			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				networkingThreadInput.IPBytes[0] = IPBytesAsInts[0];
-				networkingThreadInput.IPBytes[1] = IPBytesAsInts[1];
-				networkingThreadInput.IPBytes[2] = IPBytesAsInts[2];
-				networkingThreadInput.IPBytes[3] = IPBytesAsInts[3];
+				//update input class
+				input.setMouseLDown(true);
+			}
+			else if (event.mouseButton.button == sf::Mouse::Right)
+			{
+				input.setMouseRDown(true);
+			}
+			break;
+		case sf::Event::MouseButtonReleased:
+			if (event.mouseButton.button == sf::Mouse::Left)
+			{
+				//update input class
+				input.setMouseLDown(false);
+			}
+			else if (event.mouseButton.button == sf::Mouse::Right)
+			{
+				input.setMouseRDown(false);
+			}
+			break;
+		default:
+			// don't handle other events
+			break;
+		}
+	}
+}
+
+void NetworkedGame::levelChanges()
+{
+	if (currentGameState.getCurrentState() == State::LEVEL_ONE && targetGameState.getCurrentState() == State::LEVEL_ONE && networkState.getCurrentState() == NState::NOT_CONNECTED)
+	{
+		//oponent disconnected
+		if (currentLevel != nullptr)
+		{
+			currentLevel->opponentQuit();
+		}
+	}
+	if (currentGameState.getCurrentState() != targetGameState.getCurrentState())
+	{
+		if (targetGameState.getCurrentState() == State::LEVEL_ONE)
+		{
+			if (startTime == 0)
+			{
+				startTime = totalTime + startGameDelay;
+			}
+			else if (startTime <= totalTime)
+			{
+				delete currentLevel;
+				currentLevel = new GameLevel(window, &input, &targetGameState, &audioManager, &networkState);
+				currentGameState.setCurrentState(targetGameState.getCurrentState());
+				startTime = 0;
+			}
+
+			if (networkingThreadOutput.hosting && sendPacketsThisLoop) //tell the client that the host is starting the game
+			{
+				sf::Packet GameStartPacket;
+				GameStartPacket << GAME_START_PACKET;
+				GameStartPacket << GAME_START_PACKET;
+				GameStartPacket << startTime;
+
+				networkingThreadInput.inputQueue.enqueue(GameStartPacket);
+			}
+		}
+		else if (targetGameState.getCurrentState() == State::QUITING)
+		{
+			if (sendPacketsThisLoop) //tell the other player you have resigned
+			{
+				sf::Packet GameQuitPacket;
+				GameQuitPacket << QUIT_GAME_PACKET;
+				GameQuitPacket << QUIT_GAME_PACKET;
+
+				networkingThreadInput.inputQueue.enqueue(GameQuitPacket);
+			}
+			if (currentLevel != nullptr && currentGameState.getCurrentState() != State::FINISHED)
+			{
+				currentGameState.setCurrentState(State::FINISHED); //set current game state to finished so that we know to re-start if target game state is set to level one
+			}
+		}
+		else if (targetGameState.getCurrentState() == State::FINISHED)
+		{
+			if (currentLevel != nullptr)
+			{
+				currentGameState.setCurrentState(State::FINISHED); //set current game state to finished so that we know to re-start if target game state is set to level one
 			}
 		}
 		else
 		{
-			ImGui::Text("Disconnect to change IP Address");
-		}
+			//delete the currently loaded level
+			delete currentLevel;
+			currentLevel = nullptr;
 
-		if (ImGui::Button("Host"))
-		{
-			networkingThreadInput.makeHost = true;
-			networkingThreadInput.makeConnection = false;
-			networkingThreadInput.breakConnection = false;
-		}
-		else if (ImGui::Button("Join"))
-		{
-			networkingThreadInput.makeHost = false;
-			networkingThreadInput.makeConnection = true;
-			networkingThreadInput.breakConnection = false;
+			currentGameState.setCurrentState(targetGameState.getCurrentState());
 		}
 	}
-	if (networkingThreadOutput.connected || networkingThreadOutput.connectingToHost || networkingThreadOutput.hosting)
+}
+
+void NetworkedGame::gui()
+{
+	if (currentGameState.getCurrentState() == State::MENU || displayGUIInGame)
 	{
-		if (ImGui::Button("Disconnect"))
+		//ImGui stuff
+		ImGui::SFML::Update(*window, deltaTime);
+
+		ImGui::Begin("Sample window"); // begin window
+
+		if (!networkingThreadOutput.connected) //if not connected or hosting
 		{
-			networkingThreadInput.makeHost = false;
-			networkingThreadInput.makeConnection = false;
-			networkingThreadInput.breakConnection = true;
-			if (currentGameState.getCurrentState() == State::LEVEL_ONE)
+			if (!networkingThreadOutput.connectingToHost)
 			{
-				targetGameState.setCurrentState(State::QUITING);
-				if (currentLevel != nullptr)
+				if (ImGui::InputInt4("IP Address", IPBytesAsInts))
 				{
-					currentLevel->quit();
+					networkingThreadInput.IPBytes[0] = IPBytesAsInts[0];
+					networkingThreadInput.IPBytes[1] = IPBytesAsInts[1];
+					networkingThreadInput.IPBytes[2] = IPBytesAsInts[2];
+					networkingThreadInput.IPBytes[3] = IPBytesAsInts[3];
 				}
 			}
+			else
+			{
+				ImGui::Text("Disconnect to change IP Address");
+			}
 
+			if (ImGui::Button("Host"))
+			{
+				networkingThreadInput.makeHost = true;
+				networkingThreadInput.makeConnection = false;
+				networkingThreadInput.breakConnection = false;
+			}
+			else if (ImGui::Button("Join"))
+			{
+				networkingThreadInput.makeHost = false;
+				networkingThreadInput.makeConnection = true;
+				networkingThreadInput.breakConnection = false;
+			}
 		}
-	}
+		if (networkingThreadOutput.connected || networkingThreadOutput.connectingToHost || networkingThreadOutput.hosting)
+		{
+			if (ImGui::Button("Disconnect"))
+			{
+				networkingThreadInput.makeHost = false;
+				networkingThreadInput.makeConnection = false;
+				networkingThreadInput.breakConnection = true;
+				if (currentGameState.getCurrentState() == State::LEVEL_ONE)
+				{
+					targetGameState.setCurrentState(State::QUITING);
+					if (currentLevel != nullptr)
+					{
+						currentLevel->quit();
+					}
+				}
 
-	ImGui::Text(networkingThreadOutput.message.c_str());
-	if (startTime != 0)
-	{
-		ImGui::Text("Game will start in: %f", startTime - totalTime);
-	}
-	else
-	{
-		ImGui::Text("Game Time: %f", totalTime);
-	}
-	ImGui::Text("Framerate: %f, Target: %i", 1.0f / deltaTime.asSeconds(), TARGET_FRAMRATE);
-	ImGui::Text("Tickrate: %f, Target: %i", (networkingThreadOutput.ticks / (totalTime - tickrateTestTime)), (int)TICKRATE);
-	if (ImGui::Button("Reset Tickrate Tracker"))
-	{
-		networkingThreadOutput.ticks = 0;
-		tickrateTestTime = totalTime;
-	}
+			}
+		}
+
+		ImGui::Text(networkingThreadOutput.message.c_str());
+		if (startTime != 0)
+		{
+			ImGui::Text("Game will start in: %f", startTime - totalTime);
+		}
+		else
+		{
+			ImGui::Text("Game Time: %f", totalTime);
+		}
+		ImGui::Text("Framerate: %f, Target: %i", 1.0f / deltaTime.asSeconds(), TARGET_FRAMRATE);
+		ImGui::Text("Tickrate: %f, Target: %i", (networkingThreadOutput.ticks / (totalTime - tickrateTestTime)), (int)TICKRATE);
+		if (ImGui::Button("Reset Tickrate Tracker"))
+		{
+			networkingThreadOutput.ticks = 0;
+			tickrateTestTime = totalTime;
+		}
 
 
-	ImGui::End(); // end window
+		ImGui::End(); // end window
 
-	ImGui::SFML::Render(*window);
+		ImGui::SFML::Render(*window);
+	}
 }
+
+
 
 void NetworkedGame::networking(float* time, sf::RenderWindow* window, NetworkingThreadInput* in, NetworkingThreadOutput* out)
 {
@@ -496,8 +517,8 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		}
 
 
-		//update time and wait based on tickrate, don't wait if synchronising time
-		while (*time < minTimeNextLoop && out->synchronised && !in->quiting)
+		//update time and wait based on tickrate, don't wait if connected but still synchronising time (to maximise acuracy of time synch)
+		while (*time < minTimeNextLoop && (out->synchronised || !out->connected) && !in->quiting)
 		{
 			//wait until enough time has passed
 			tickrateCV.wait(timeLock);
@@ -506,14 +527,14 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		//define the time for this loop by the current time
 		float timeThisLoop = *time;
 
-		if (out->synchronised)
+		if (out->synchronised || !out->connected)
 		{
-			//while synchronised only increment the time for the next loop by waitTime to disrgaurd exess deltaTime and maintain full tickrate
+			//only increment the time for the next loop by waitTime to disrgaurd exess deltaTime and maintain full tickrate
 			minTimeNextLoop += waitTime;
 		}
 		else
 		{
-			//while not synchronised keep the time for next loop in line with the current time
+			//while synchronising keep the time for next loop in line with the current time
 			minTimeNextLoop = timeThisLoop;
 		}
 
@@ -811,9 +832,18 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 
 	}
 
+	// final attepmt to break the connection gracefully
+	if (otherIP != nullptr)
+	{
+		sf::Packet disconnectPacket;
+		disconnectPacket << sf::Uint8(0);
+		if (out->connectingToHost)
+			socket.send(disconnectPacket, *otherIP, HOST_PORT);
+		else
+			socket.send(disconnectPacket, *otherIP, CLIENT_PORT);
+	}
 	delete(otherIP);
 }
-
 
 void NetworkedGame::die(const char* message)
 {

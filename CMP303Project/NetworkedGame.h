@@ -81,10 +81,15 @@ public:
 	void run();
 
 private:
+	//Game Loop
+	void windowEvents(); //manage input
+	void levelChanges(); //handle the effects of gameState changes
 	void gui();
 
+	//Networking
 	void networking(float* time, sf::RenderWindow* window, NetworkingThreadInput* in, NetworkingThreadOutput* out);
 	void die(const char* message);
+
 
 	// Thread management
 	mutex timeMutex;
@@ -94,8 +99,6 @@ private:
 	condition_variable packetsToSendCV;
 
 
-	// Game loop:
-
 	sf::RenderWindow* window;
 	Input input;
 	AudioManager audioManager;
@@ -103,7 +106,8 @@ private:
 	// gameStates
 	GameState targetGameState;
 	GameState currentGameState;
-	float startTime; //time to change to currentGameState to targetGameState
+	float startTime; //time at which to change currentGameState to targetGameState
+	float startGameDelay; //current time + startGameDelay = startTime
 
 	NetworkState networkState;
 
@@ -117,10 +121,11 @@ private:
 	sf::Time deltaTime;
 	float deltaTimeAsSeconds;
 	float totalTime;
-	float tickrateTestTime;
 
-	// imgui compatable version of IPBytes
-	int IPBytesAsInts[4];
+	// imgui variables
+	int IPBytesAsInts[4]; // imgui compatable version of IPBytes
+	float tickrateTestTime;
+	bool displayGUIInGame;
 
 	// networking thread and stuff
 	NetworkingThreadInput networkingThreadInput;

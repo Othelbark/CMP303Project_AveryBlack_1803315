@@ -42,39 +42,6 @@ PlayerObject::PlayerObject()
 	walkingAni.addFrame(sf::IntRect(48, 0, 16, 16));
 	walkingAni.setFrameSpeed(0.2f);
 
-	jumpingAni.addFrame(sf::IntRect(80, 0, 16, 16));
-	jumpingAni.setLooping(false);
-	jumpingAni.setPlaying(false);
-	jumpingAni.setFrameSpeed(0.2f);
-
-	crouchingIdleAni.addFrame(sf::IntRect(96, 0, 16, 16));
-	crouchingIdleAni.setLooping(false);
-	crouchingIdleAni.setPlaying(false);
-	crouchingIdleAni.setFrameSpeed(0.2f);
-
-	crouchingWalkingAni.addFrame(sf::IntRect(112, 0, 16, 16));
-	crouchingWalkingAni.addFrame(sf::IntRect(128, 0, 16, 16));
-	crouchingWalkingAni.addFrame(sf::IntRect(144, 0, 16, 16));
-	crouchingWalkingAni.addFrame(sf::IntRect(128, 0, 16, 16));
-	crouchingWalkingAni.setFrameSpeed(0.2f);
-
-	wallSlideAni.addFrame(sf::IntRect(160, 0, 16, 16));
-	wallSlideAni.setLooping(false);
-	wallSlideAni.setPlaying(false);
-	wallSlideAni.setFrameSpeed(0.2f);
-
-	throwAni.addFrame(sf::IntRect(176, 0, 16, 16));
-	throwAni.addFrame(sf::IntRect(192, 0, 16, 16));
-	throwAni.addFrame(sf::IntRect(176, 0, 16, 16));
-	throwAni.setLooping(false);
-	throwAni.setFrameSpeed(0.2f);
-
-	attackAni.addFrame(sf::IntRect(208, 0, 16, 16));
-	attackAni.addFrame(sf::IntRect(224, 0, 16, 16));
-	attackAni.addFrame(sf::IntRect(240, 0, 16, 16));
-	attackAni.setLooping(false);
-	attackAni.setFrameSpeed(0.1f);
-
 	deathAni.addFrame(sf::IntRect(256, 0, 16, 16));
 	deathAni.addFrame(sf::IntRect(272, 0, 16, 16));
 	deathAni.addFrame(sf::IntRect(288, 0, 16, 16));
@@ -86,15 +53,11 @@ PlayerObject::PlayerObject()
 
 	//initalise movement and animation variables
 	horizontalDirection = 0;
-	isJumping = false;
+	isAiming = false;
 	isWalking = false;
-	isCrouching = false;
-	isAgainstLeftWall = false;
-	isAgainstRightWall = false;
 	isFlipped = false;
 
 	maxStep = 7.0f;
-	maxVerticalStep = 3.0f;
 	speed = 120;
 
 	setAlive(true);
@@ -109,36 +72,19 @@ void PlayerObject::handleInput(float dt)
 	//if the player is alive
 	if (alive) 
 	{
-		// Jump
-		if (input->keyClicked(sf::Keyboard::W) || input->keyClicked(sf::Keyboard::Space))
-		{
-			jump();
-		}
-
-		// Cut jump short if W is released
-		if (input->keyReleased(sf::Keyboard::W) || input->keyReleased(sf::Keyboard::Space))
-		{
-			//if jumping and velocity is upwards
-			if (isJumping && velocity.y < 0)
-			{
-				velocity.y = 0;
-			}
-		}
 
 		//get direction from input
-		if (input->isKeyDown(sf::Keyboard().A) && !isAgainstRightWall)
+		if (input->isKeyDown(sf::Keyboard().A))
 		{
 			isWalking = true;
 			horizontalDirection = -1;
-			if (currentAni != &throwAni && currentAni != &attackAni)
-				isFlipped = true;
+			isFlipped = true;
 		}
-		else if (input->isKeyDown(sf::Keyboard().D) && !isAgainstLeftWall)
+		else if (input->isKeyDown(sf::Keyboard().D))
 		{
 			isWalking = true;
 			horizontalDirection = 1;
-			if (currentAni != &throwAni && currentAni != &attackAni)
-				isFlipped = false;
+			isFlipped = false;
 		}
 		else
 		{
@@ -146,44 +92,10 @@ void PlayerObject::handleInput(float dt)
 			horizontalDirection = 0;
 		}
 
-		//start / stop crouching from input
-		if (input->isKeyDown(sf::Keyboard().LControl) || input->isKeyDown(sf::Keyboard().LShift))
-		{
-			isCrouching = true;
-		}
-		else
-		{
-			isCrouching = false;
-		}
-
-		//throw
-		if (input->isMouseLDown())
-		{
-			input->setMouseLDown(false);
-			currentAni = &throwAni;
-			currentAni->reset();
-			currentAni->setPlaying(true);
-
-			//if mouse is left of player
-			if (input->getMouseX() < view->getSize().x / 2)
-			{
-				isFlipped = true;
-			}
-			else
-			{
-				isFlipped = false;
-			}
-		}
 	}
 	// if the player is not alive
 	else
 	{
-		//if velocity is upwards
-		if (velocity.y < 0)
-		{
-			velocity.y = 0;
-		}
-
 		//no motion
 		isWalking = false;
 		horizontalDirection = 0;
@@ -192,11 +104,6 @@ void PlayerObject::handleInput(float dt)
 
 void PlayerObject::update(float dt)
 {
-	//check if falling
-	if (velocity.y > 100.0f)
-	{
-		isJumping = true;
-	}
 
 	//if not walljump-locked set x-velocity from direction
 	if (wallJumpLockTimer <= 0.0f)
@@ -208,32 +115,16 @@ void PlayerObject::update(float dt)
 		wallJumpLockTimer -= dt;
 	}
 
-	sf::Vector2f modifiedGravity = gravity;
-	//half gravity if falling against a wall
-	if ((isAgainstLeftWall || isAgainstRightWall) && velocity.y > 0)
-	{
-		modifiedGravity *= 0.5f;
-	}
-
 	// Apply gravity force, increasing velocity
 	// Move shape by new velocity
-	sf::Vector2f pos = velocity * dt + 0.5f * modifiedGravity * dt * dt; // v = ut + 1/2at^2
-	velocity += modifiedGravity * dt; // v = u + at 
+	sf::Vector2f pos = velocity * dt + 0.5f * gravity * dt * dt; // v = ut + 1/2at^2
+	velocity += gravity * dt; // v = u + at 
 	setPosition(getPosition() + pos);
 
 	//if player is dead
 	if (!alive)
 	{
 		currentAni = &deathAni;
-	}
-	//if action-animation is set
-	else if (currentAni == &throwAni || currentAni == &attackAni)
-	{
-		//if anction animation is finished
-		if (!currentAni->getPlaying())
-		{
-			findAndSetAnimation();
-		}
 	}
 	else 
 	{
@@ -304,15 +195,11 @@ void PlayerObject::collisionResponse(GameObject* collider)
 		else if (xDiff < 0)
 		{
 			//collision from left
-			isAgainstRightWall = true;
-			isAgainstLeftWall = false;
 			setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (5 * tileScaleFactor), getPosition().y);
 		}
 		else
 		{
 			//collision from right
-			isAgainstLeftWall = true;
-			isAgainstRightWall = false;
 			setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (5 * tileScaleFactor), getPosition().y);
 		}
 
@@ -325,27 +212,14 @@ void PlayerObject::collisionResponse(GameObject* collider)
 			//collision from above
 			if (velocity.y > 0)
 			{
-				isJumping = false;
-				isAgainstLeftWall = false;
-				isAgainstRightWall = false;
 				velocity.y = 0;
 				setPosition(getPosition().x, colliderCollisionBox.top - getSize().y);
 			}
 		}
 		else
 		{
-			if (xDiff < 0 && xOverlap <= maxVerticalStep)
-			{
-				//brush past an outcropping smaller than maxVerticalStep
-				setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (5 * tileScaleFactor), getPosition().y);
-			}
-			else if (xDiff > 0 && xOverlap <= maxVerticalStep)
-			{
-				//brush past an outcropping smaller than maxVerticalStep
-				setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (5 * tileScaleFactor), getPosition().y);
-			}
 			//collision from below
-			else if (velocity.y < 0)
+			if (velocity.y < 0)
 			{
 				velocity.y = (-velocity.y / 3);
 				setPosition(getPosition().x, colliderCollisionBox.top + colliderCollisionBox.height - (6 * tileScaleFactor));
@@ -354,49 +228,10 @@ void PlayerObject::collisionResponse(GameObject* collider)
 	}
 }
 
-void PlayerObject::playAttackAnimation()
-{
-	currentAni = &attackAni;
-	currentAni->reset();
-	currentAni->setPlaying(true);
-}
-
 void PlayerObject::findAndSetAnimation()
 {
-	//if jumping
-	if (isJumping)
-	{
-		//if sliding down a wall
-		if (isAgainstLeftWall && velocity.y > 0)
-		{
-			currentAni = &wallSlideAni;
-			isFlipped = false;
-		}
-		else if (isAgainstRightWall && velocity.y > 0)
-		{
-			currentAni = &wallSlideAni;
-			isFlipped = true;
-		}
-		//if not sliding down a wall
-		else
-		{
-			currentAni = &jumpingAni;
-		}
-	}
-	//if crouching
-	else if (isCrouching)
-	{
-		if (isWalking)
-		{
-			currentAni = &crouchingWalkingAni;
-		}
-		else
-		{
-			currentAni = &crouchingIdleAni;
-		}
-	}
 	//if walking
-	else if (isWalking)
+	if (isWalking)
 	{
 		currentAni = &walkingAni;
 	}
@@ -404,40 +239,5 @@ void PlayerObject::findAndSetAnimation()
 	else
 	{
 		currentAni = &idleAni;
-	}
-}
-
-void PlayerObject::jump()
-{
-	//if standing on the ground
-	if (!isJumping && !isCrouching && velocity.y == 0)
-	{
-		velocity = jumpVector;
-		isJumping = true;
-		isAgainstLeftWall = false;
-		isAgainstRightWall = false;
-		audio->playSoundbyName("jump");
-	}
-
-	//if falling against left wall
-	else if (isAgainstLeftWall && velocity.y > 0)// && !input->isKeyDown(sf::Keyboard().A))
-	{
-		velocity = wallJumpVector;
-		isJumping = true;
-		wallJumpLockTimer = wallJumpLockTime;
-		velocity.x = 1.1f * speed;
-		isAgainstLeftWall = false;
-		audio->playSoundbyName("jump");
-	}
-
-	//if falling against right wall
-	else if (isAgainstRightWall && velocity.y > 0)// && !input->isKeyDown(sf::Keyboard().D))
-	{
-		velocity = wallJumpVector;
-		isJumping = true;
-		wallJumpLockTimer = wallJumpLockTime;
-		velocity.x = -1.1f * speed;
-		isAgainstRightWall = false;
-		audio->playSoundbyName("jump");
 	}
 }

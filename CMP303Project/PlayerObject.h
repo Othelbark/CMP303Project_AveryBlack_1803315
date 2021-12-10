@@ -16,8 +16,6 @@ public:
 
 	virtual void collisionResponse(GameObject* collider) override;
 
-	void playAttackAnimation();
-
 	//getters and setters
 	void setSpeed(float s) { speed = s; };
 	float getSpeed() { return speed; };
@@ -32,7 +30,6 @@ public:
 
 protected:
 	void findAndSetAnimation();
-	void jump();
 
 
 	sf::Texture playerTexture;
@@ -60,24 +57,15 @@ protected:
 	Animation* currentAni;
 	Animation idleAni;
 	Animation walkingAni;
-	Animation jumpingAni;
-	Animation crouchingIdleAni;
-	Animation crouchingWalkingAni;
-	Animation wallSlideAni;
-	Animation throwAni;
-	Animation attackAni;
+	Animation aimingAni;
 	Animation deathAni;
 
 	//animation and movement variables
 	int horizontalDirection;
-	bool isJumping;
+	bool isAiming;
 	bool isWalking;
-	bool isCrouching;
 	bool isFlipped;
-	bool isAgainstLeftWall;
-	bool isAgainstRightWall;
 
 	float maxStep;
-	float maxVerticalStep;
 	float speed;
 };
