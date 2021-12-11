@@ -8,9 +8,9 @@ PlayerObject::PlayerObject()
 	audio = nullptr;
 
 	// initalise size, scale and collision box
-	setTileScaleFactor(1);
+	setTileScaleFactor(1.5f);
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
-	setCollisionBox(11 * tileScaleFactor, 6 * tileScaleFactor, 28 * tileScaleFactor, 44 * tileScaleFactor);
+	setCollisionBox(12 * tileScaleFactor, 6 * tileScaleFactor, 26 * tileScaleFactor, 44 * tileScaleFactor);
 
 	//load and set texture
 	playerTexture.loadFromFile("gfx/Player.png");
@@ -20,7 +20,6 @@ PlayerObject::PlayerObject()
 	// initialise gravity value (gravity 9.8, 64 scale, 64 p/s this will need to be uniform)
 	scale = 64.0f;
 	gravity = sf::Vector2f(0, 9.8f) * scale * 2.0f; //double gravity
-	jumpVector = sf::Vector2f(0, -9.0f) * scale;
 
 	//initalise animations
 	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
@@ -43,11 +42,14 @@ PlayerObject::PlayerObject()
 	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.setFrameSpeed(0.2f);
 
-	walkingAni.addFrame(sf::IntRect(32, 0, 16, 16));
-	walkingAni.addFrame(sf::IntRect(48, 0, 16, 16));
-	walkingAni.addFrame(sf::IntRect(64, 0, 16, 16));
-	walkingAni.addFrame(sf::IntRect(48, 0, 16, 16));
-	walkingAni.setFrameSpeed(0.2f);
+	walkingAni.addFrame(sf::IntRect(0, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(50, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(100, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(150, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(200, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(250, 50, 50, 50));
+	walkingAni.addFrame(sf::IntRect(300, 50, 50, 50));
+	walkingAni.setFrameSpeed(0.08f);
 
 	deathAni.addFrame(sf::IntRect(256, 0, 16, 16));
 	deathAni.addFrame(sf::IntRect(272, 0, 16, 16));
@@ -65,7 +67,7 @@ PlayerObject::PlayerObject()
 	isFlipped = false;
 
 	maxStep = 7.0f;
-	speed = 120;
+	speed = 90;
 
 	setAlive(true);
 }
@@ -111,16 +113,7 @@ void PlayerObject::handleInput(float dt)
 
 void PlayerObject::update(float dt)
 {
-
-	//if not walljump-locked set x-velocity from direction
-	if (wallJumpLockTimer <= 0.0f)
-	{
-		velocity.x = horizontalDirection * speed;
-	}
-	else
-	{
-		wallJumpLockTimer -= dt;
-	}
+	velocity.x = horizontalDirection * speed;
 
 	// Apply gravity force, increasing velocity
 	// Move shape by new velocity
@@ -202,12 +195,12 @@ void PlayerObject::collisionResponse(GameObject* collider)
 		else if (xDiff < 0)
 		{
 			//collision from left
-			setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (5 * tileScaleFactor), getPosition().y);
+			setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (12 * tileScaleFactor), getPosition().y);
 		}
 		else
 		{
 			//collision from right
-			setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (5 * tileScaleFactor), getPosition().y);
+			setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (12 * tileScaleFactor), getPosition().y);
 		}
 
 	}

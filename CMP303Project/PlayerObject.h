@@ -43,12 +43,6 @@ protected:
 	float scale;
 	//gravity and jump vectors
 	sf::Vector2f gravity;
-	sf::Vector2f jumpVector;
-	sf::Vector2f wallJumpVector;
-
-	//wall jump logic variables
-	const float wallJumpLockTime = 0.35f;
-	float wallJumpLockTimer;
 
 	//scale factor
 	int tileScaleFactor;

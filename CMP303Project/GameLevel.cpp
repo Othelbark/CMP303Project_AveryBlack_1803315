@@ -47,24 +47,24 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	// towers back
 	towerLeftBackTexture.loadFromFile("gfx/Back_layer_tower_left.png");
 	towerLeftBack.setTexture(&towerLeftBackTexture);
-	towerLeftBack.setSize(sf::Vector2f(350, 382));
-	towerLeftBack.setPosition(sf::Vector2f(0, 338));
+	towerLeftBack.setSize(sf::Vector2f(350, 500));
+	towerLeftBack.setPosition(sf::Vector2f(0, 220));
 	towerRightBackTexture.loadFromFile("gfx/Back_layer_tower_right.png");
 	towerRightBack.setTexture(&towerRightBackTexture);
-	towerRightBack.setSize(sf::Vector2f(350, 382));
-	towerRightBack.setPosition(sf::Vector2f(930, 338));
+	towerRightBack.setSize(sf::Vector2f(350, 500));
+	towerRightBack.setPosition(sf::Vector2f(930, 220));
 
 	// towers front
 	towerLeftFrontTexture.loadFromFile("gfx/Front_layer_tower_left.png");
 	towerLeftFront.setTexture(&towerLeftFrontTexture);
-	towerLeftFront.setSize(sf::Vector2f(350, 382));
-	towerLeftFront.setPosition(sf::Vector2f(0, 338));
-	towerLeftFront.setCollisionBox(0, 10, 350, 50);
+	towerLeftFront.setSize(sf::Vector2f(350, 500));
+	towerLeftFront.setPosition(sf::Vector2f(0, 220));
+	towerLeftFront.setCollisionBox(0, 89, 292, 411);
 	towerRightFrontTexture.loadFromFile("gfx/Front_layer_tower_right.png");
 	towerRightFront.setTexture(&towerRightFrontTexture);
-	towerRightFront.setSize(sf::Vector2f(350, 382));
-	towerRightFront.setPosition(sf::Vector2f(930, 338));
-	towerRightFront.setCollisionBox(0, 10, 350, 50);
+	towerRightFront.setSize(sf::Vector2f(350, 500));
+	towerRightFront.setPosition(sf::Vector2f(930, 220));
+	towerRightFront.setCollisionBox(58, 89, 292, 411);
 
 
 
