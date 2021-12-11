@@ -20,7 +20,7 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	controlsText.setFont(font);
 	controlsText.setCharacterSize(24);
 	controlsText.setFillColor(sf::Color::White);
-	controlsText.setString("Controls Here \n\nESC to pause.");
+	controlsText.setString("Use ImGUI interface to host or connect to a game,\npress space to toggle ImGUI in-game.\n\nUse A and D to move left and right.\nTo aim your crossbow click and hold on your character\nand drag in the inverse direction like a slingshot.\n\nESC to pause.");
 	controlsText.setPosition(view.getCenter().x - (controlsText.getLocalBounds().width / 2), 192);
 
 

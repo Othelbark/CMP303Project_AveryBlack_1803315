@@ -350,7 +350,12 @@ void NetworkedGame::levelChanges()
 
 void NetworkedGame::gui()
 {
-	if (currentGameState.getCurrentState() == State::MENU || displayGUIInGame)
+	if (input.isKeyDown(sf::Keyboard::Space) && currentGameState.getCurrentState() != State::MENU)
+	{
+		input.setKeyUp(sf::Keyboard::Space);
+		displayGUIInGame = !displayGUIInGame;
+	}
+	if (currentGameState.getCurrentState() == State::MENU || displayGUIInGame) //Always display on the main menu, toggleable elsewhere
 	{
 		//ImGui stuff
 		ImGui::SFML::Update(*window, deltaTime);

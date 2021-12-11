@@ -16,7 +16,7 @@ CreditsLevel::CreditsLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, Aud
 	info.setFont(font);
 	info.setCharacterSize(24);
 	info.setFillColor(sf::Color::White);
-	info.setString("A game by Avery Black\n");
+	info.setString("A game by Avery Black\n\nArt by Siobhán.B");
 	info.setPosition(view.getCenter().x - (info.getLocalBounds().width / 2), 192);
 
 	buttonTexture.loadFromFile("gfx/Button.png");

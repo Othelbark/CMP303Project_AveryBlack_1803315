@@ -24,17 +24,24 @@ PlayerObject::PlayerObject()
 
 	//initalise animations
 	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(100, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(150, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(200, 0, 50, 50));
-	idleAni.addFrame(sf::IntRect(250, 0, 50, 50));
-	idleAni.addFrame(sf::IntRect(200, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(150, 0, 50, 50));
-	idleAni.addFrame(sf::IntRect(100, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(300, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
-	idleAni.setFrameSpeed(0.25f);
+	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
+	idleAni.setFrameSpeed(0.2f);
 
 	walkingAni.addFrame(sf::IntRect(32, 0, 16, 16));
 	walkingAni.addFrame(sf::IntRect(48, 0, 16, 16));

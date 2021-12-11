@@ -71,9 +71,9 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	// ground
 	groundTexture.loadFromFile("gfx/Front_grass_layer.png");
 	ground.setTexture(&groundTexture);
-	ground.setSize(sf::Vector2f(1280, 75));
-	ground.setPosition(sf::Vector2f(0, 645));
-	ground.setCollisionBox(0, 33, 1280, 42);
+	ground.setSize(sf::Vector2f(1280, 60));
+	ground.setPosition(sf::Vector2f(0, 660));
+	ground.setCollisionBox(0, 24, 1280, 36);
 
 	// background
 	backgroundTexture.loadFromFile("gfx/Sky_backround.png");
@@ -335,13 +335,9 @@ void GameLevel::updateGame(float dt)
 	{
 		player.collisionResponse(&towerRightFront);
 	}
-	if (Collision::checkBoundingBox(&opponent, &towerLeftFront))
+	if (Collision::checkBoundingBox(&player, &ground))
 	{
-		opponent.collisionResponse(&towerLeftFront);
-	}
-	if (Collision::checkBoundingBox(&opponent, &towerRightFront))
-	{
-		opponent.collisionResponse(&towerRightFront);
+		player.collisionResponse(&ground);
 	}
 
 
