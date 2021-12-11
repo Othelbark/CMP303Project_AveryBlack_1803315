@@ -522,8 +522,8 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		}
 
 
-		//update time and wait based on tickrate, don't wait if connected but still synchronising time (to maximise acuracy of time synch)
-		while (*time < minTimeNextLoop && (out->synchronised || !out->connected) && !in->quiting)
+		//update time and wait based on tickrate
+		while (*time < minTimeNextLoop && !in->quiting)
 		{
 			//wait until enough time has passed
 			tickrateCV.wait(timeLock);
@@ -531,17 +531,8 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 
 		//define the time for this loop by the current time
 		float timeThisLoop = *time;
-
-		if (out->synchronised || !out->connected)
-		{
-			//only increment the time for the next loop by waitTime to disrgaurd exess deltaTime and maintain full tickrate
-			minTimeNextLoop += waitTime;
-		}
-		else
-		{
-			//while synchronising keep the time for next loop in line with the current time
-			minTimeNextLoop = timeThisLoop;
-		}
+		//only increment the time for the next loop by waitTime to disrgaurd exess deltaTime and maintain full tickrate
+		minTimeNextLoop += waitTime;
 
 
 		if (!(out->connected) && (out->connectingToHost || out->hosting)) //If not connected but want to be: try to establish conection
