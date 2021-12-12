@@ -52,7 +52,7 @@ PlayerObject::PlayerObject()
 
 	aimingAni.addFrame(sf::IntRect(0, 100, 50, 50));
 	aimingAni.addFrame(sf::IntRect(50, 100, 50, 50));
-	aimingAni.setFrameSpeed(0.2f);
+	aimingAni.setFrameSpeed(0.08f);
 	aimingAni.setLooping(false);
 
 	deathAni.addFrame(sf::IntRect(256, 0, 16, 16));
@@ -105,6 +105,36 @@ void PlayerObject::handleInput(float dt)
 			horizontalDirection = 0;
 		}
 
+		//crossbow controls
+
+		//Calculate the game posistion of the mouse
+		sf::Vector2f veiwOffset = { view->getCenter().x - (view->getSize().x / 2) , view->getCenter().y - (view->getSize().y / 2) };
+		float xScaleFactor = view->getSize().x / window->getSize().x;
+		float yScaleFactor = view->getSize().y / window->getSize().y;
+
+		int mouseX = (int)((input->getMouseX() * xScaleFactor) + veiwOffset.x);
+		int mouseY = (int)((input->getMouseY() * yScaleFactor) + veiwOffset.y);
+
+		// If left-mouse is down and not aiming
+		if (input->isMouseLDown() && isAiming == false)
+		{
+			//if mouse is over button
+			if (Collision::checkBoundingBox(this, sf::Vector2i(mouseX, mouseY)))
+			{
+				isAiming = true;
+				aimingAni.reset();
+				aimingAni.setPlaying(true);
+			}
+		}
+		// Else if left mouse is not down and is aiming
+		else if (!input->isMouseLDown() && isAiming == true)
+		{
+			// Set held to false
+			isAiming = false;
+
+			// fire arrow here
+		}
+
 	}
 	// if the player is not alive
 	else
@@ -118,6 +148,10 @@ void PlayerObject::handleInput(float dt)
 void PlayerObject::update(float dt)
 {
 	velocity.x = horizontalDirection * speed;
+	if (isAiming)
+	{
+		velocity.x *= 0.5f;
+	}
 
 	// Apply gravity force, increasing velocity
 	// Move shape by new velocity
@@ -150,7 +184,7 @@ void PlayerObject::render()
 	window->draw(*this);
 	if (bow.isAlive())
 	{
-		if (isFlipped && isAiming) 
+		if ((isFlipped && isAiming) || (getPosition().x > 640 && !isAiming)) 
 		{
 			bow.setScale(sf::Vector2f(-1, 1));
 		}
@@ -250,11 +284,18 @@ void PlayerObject::findAndSetAnimation()
 	{
 		if (!isAiming)
 		{
-			bow.setPosition(getPosition() + sf::Vector2f(3 * tileScaleFactor, 15 * tileScaleFactor));
+			if (getPosition().x < 640)
+			{
+				bow.setPosition(getPosition() + sf::Vector2f(3 * tileScaleFactor, 15 * tileScaleFactor));
+			}
+			else
+			{
+				bow.setPosition(getPosition() + sf::Vector2f(47 * tileScaleFactor, 15 * tileScaleFactor));
+			}
 		}
 		else if (isFlipped)
 		{
-			bow.setPosition(getPosition() + sf::Vector2f(-8 * tileScaleFactor, 1 * tileScaleFactor));
+			bow.setPosition(getPosition() + sf::Vector2f(42 * tileScaleFactor, 1 * tileScaleFactor));
 		}
 		else
 		{

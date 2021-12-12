@@ -57,6 +57,7 @@ protected:
 	Animation aimingAni;
 	Animation deathAni;
 
+
 	//animation and movement variables
 	int horizontalDirection;
 	bool isAiming;

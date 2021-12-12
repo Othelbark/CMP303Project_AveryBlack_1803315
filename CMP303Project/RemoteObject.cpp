@@ -36,23 +36,31 @@ void RemoteObject::updatePrediction(float gameTime, float dt)
 
 void RemoteObject::addState(const ObjectState& state)
 {
-	if (state.time > actualStates[actualStates.size() - 1].time) //disreguard updates timestamped for before most recent update
+	int statesCount = actualStates.size();
+	if (statesCount > 0) //if there is at least one state already
 	{
-		actualStates.push_back(LocalObjectState(state));
+		if (state.time < actualStates[statesCount - 1].time) //if new state is timestamed before most resent state
+		{
+			//disreguard old data
+			return;
+		}
+	}
 
-		if (actualStates.size() > 3)
-		{
-			actualStates.erase(actualStates.begin());
-		}
+	actualStates.push_back(LocalObjectState(state));
+	statesCount++;
 
-		if (predictedStates.size() > 0)
-		{
-			latestPredictionAtLastUpdate = getCurrentPrediction();
-		}
-		else
-		{
-			latestPredictionAtLastUpdate = LocalObjectState(state);
-		}
+	if (statesCount > 3)
+	{
+		actualStates.erase(actualStates.begin());
+	}
+
+	if (predictedStates.size() > 0)
+	{
+		latestPredictionAtLastUpdate = getCurrentPrediction();
+	}
+	else
+	{
+		latestPredictionAtLastUpdate = LocalObjectState(state);
 	}
 	recivedAnyData = true;
 }
