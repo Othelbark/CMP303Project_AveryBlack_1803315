@@ -12,9 +12,8 @@ PlayerObject::PlayerObject()
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 	setCollisionBox(12 * tileScaleFactor, 6 * tileScaleFactor, 26 * tileScaleFactor, 44 * tileScaleFactor);
 
-	//load and set texture
-	playerTexture.loadFromFile("gfx/Player.png");
-	setTexture(&playerTexture);
+	// Bow
+	bow.setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 
 
 	// initialise gravity value (gravity 9.8, 64 scale, 64 p/s this will need to be uniform)
@@ -51,6 +50,11 @@ PlayerObject::PlayerObject()
 	walkingAni.addFrame(sf::IntRect(300, 50, 50, 50));
 	walkingAni.setFrameSpeed(0.08f);
 
+	aimingAni.addFrame(sf::IntRect(0, 100, 50, 50));
+	aimingAni.addFrame(sf::IntRect(50, 100, 50, 50));
+	aimingAni.setFrameSpeed(0.2f);
+	aimingAni.setLooping(false);
+
 	deathAni.addFrame(sf::IntRect(256, 0, 16, 16));
 	deathAni.addFrame(sf::IntRect(272, 0, 16, 16));
 	deathAni.addFrame(sf::IntRect(288, 0, 16, 16));
@@ -67,7 +71,7 @@ PlayerObject::PlayerObject()
 	isFlipped = false;
 
 	maxStep = 7.0f;
-	speed = 90;
+	speed = 100;
 
 	setAlive(true);
 }
@@ -120,31 +124,42 @@ void PlayerObject::update(float dt)
 	sf::Vector2f pos = velocity * dt + 0.5f * gravity * dt * dt; // v = ut + 1/2at^2
 	velocity += gravity * dt; // v = u + at 
 	setPosition(getPosition() + pos);
+	pos = getPosition();
 
-	//if player is dead
-	if (!alive)
+	if (pos.x < -12 * tileScaleFactor) //over the edge
 	{
-		currentAni = &deathAni;
+		setPosition(sf::Vector2f(-12 * tileScaleFactor, pos.y));
 	}
-	else 
+	else if (pos.x > view->getSize().x - (38 * tileScaleFactor)) //over the other edge
 	{
-		findAndSetAnimation();
-	}
-
-	// if the player is alive but the death animation has been played
-	if (alive && !deathAni.getPlaying())
-	{
-		//reset the death animation
-		deathAni.reset();
-		deathAni.setPlaying(true);
+		setPosition(sf::Vector2f(view->getSize().x - (38 * tileScaleFactor), pos.y));
 	}
 
+	findAndSetAnimation();
+	
 	//Animate
 	currentAni->animate(dt);
 
 	//set current frame and direction
 	currentAni->setFlipped(isFlipped);
 	setTextureRect(currentAni->getCurrentFrame());
+}
+
+void PlayerObject::render()
+{
+	window->draw(*this);
+	if (bow.isAlive())
+	{
+		if (isFlipped && isAiming) 
+		{
+			bow.setScale(sf::Vector2f(-1, 1));
+		}
+		else
+		{
+			bow.setScale(sf::Vector2f(1, 1));
+		}
+		window->draw(bow);
+	}
 }
 
 
@@ -230,10 +245,48 @@ void PlayerObject::collisionResponse(GameObject* collider)
 
 void PlayerObject::findAndSetAnimation()
 {
+	//bow render position;
+	if (alive)
+	{
+		if (!isAiming)
+		{
+			bow.setPosition(getPosition() + sf::Vector2f(3 * tileScaleFactor, 15 * tileScaleFactor));
+		}
+		else if (isFlipped)
+		{
+			bow.setPosition(getPosition() + sf::Vector2f(-8 * tileScaleFactor, 1 * tileScaleFactor));
+		}
+		else
+		{
+			bow.setPosition(getPosition() + sf::Vector2f(8 * tileScaleFactor, 1 * tileScaleFactor));
+		}
+	}
+	else
+	{
+		bow.setAlive(false);
+	}
+
+	if (!alive)
+	{
+		currentAni = &deathAni;
+		return;
+	}
+
 	//if walking
 	if (isWalking)
 	{
-		currentAni = &walkingAni;
+		if (isAiming)
+		{
+			currentAni = &aimingAni; //walking aiming animation when exists
+		}
+		else
+		{
+			currentAni = &walkingAni;
+		}
+	}
+	else if (isAiming)
+	{
+		currentAni = &aimingAni;
 	}
 	//if idle
 	else

@@ -82,7 +82,6 @@ protected:
 	sf::Texture towerRightFrontTexture;
 	GameObject towerRightFront;
 
-
 	// Ground
 	sf::Texture groundTexture;
 	GameObject ground;
@@ -90,6 +89,9 @@ protected:
 	// Background
 	sf::Texture backgroundTexture;
 	sf::RectangleShape background;
+
+	// Invisable colliders
+	GameObject playersStayOnTowers;
 
 	// UI objects
 	sf::Font font;

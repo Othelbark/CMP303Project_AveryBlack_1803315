@@ -19,10 +19,14 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		sf::Vector2f pos = player.getPosition();
 		pos.x = window->getSize().x - player.getSize().x - pos.x;
 		player.setPosition(pos);
+
+		player.loadTextureFromFile("gfx/player_1.png");
+		player.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 	else
 	{
 		player.loadTextureFromFile("gfx/player_1.png");
+		player.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 
 
@@ -36,12 +40,16 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	if (ns->getCurrentState() == NState::CONNECTED) //not host
 	{
 		opponent.loadTextureFromFile("gfx/player_1.png");
+		opponent.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 	else
 	{
 		sf::Vector2f pos = opponent.getPosition();
 		pos.x = window->getSize().x - opponent.getSize().x - pos.x;
 		opponent.setPosition(pos);
+
+		opponent.loadTextureFromFile("gfx/player_1.png");
+		opponent.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 
 	// towers back
@@ -66,8 +74,6 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	towerRightFront.setPosition(sf::Vector2f(930, 220));
 	towerRightFront.setCollisionBox(58, 89, 292, 411);
 
-
-
 	// ground
 	groundTexture.loadFromFile("gfx/Front_grass_layer.png");
 	ground.setTexture(&groundTexture);
@@ -81,6 +87,11 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	background.setSize(view.getSize());
 	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);
 	background.setPosition(view.getCenter());
+
+	// invisable colliders
+	playersStayOnTowers.setPosition(sf::Vector2f(0, 0));
+	playersStayOnTowers.setCollisionBox(292, 0, 696, 720);
+
 
 	// UI
 	if (!font.loadFromFile("font/arial.ttf"))
@@ -205,8 +216,8 @@ void GameLevel::render()
 	window->draw(towerRightBack);
 
 	//draw players
-	window->draw(player);
-	window->draw(opponent);
+	player.render();
+	opponent.render();
 
 	//draw towers back
 	window->draw(towerLeftFront);
@@ -338,6 +349,10 @@ void GameLevel::updateGame(float dt)
 	if (Collision::checkBoundingBox(&player, &ground))
 	{
 		player.collisionResponse(&ground);
+	}
+	if (Collision::checkBoundingBox(&player, &playersStayOnTowers))
+	{
+		player.collisionResponse(&playersStayOnTowers);
 	}
 
 

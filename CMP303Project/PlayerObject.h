@@ -13,6 +13,7 @@ public:
 
 	virtual void handleInput(float dt) override;
 	virtual void update(float dt) override;
+	virtual void render();
 
 	virtual void collisionResponse(GameObject* collider) override;
 
@@ -27,13 +28,15 @@ public:
 	void setTileScaleFactor(int sF) { tileScaleFactor = sF; };
 
 	void loadTextureFromFile(std::string filename) { texture.loadFromFile(filename); setTexture(&texture); };
+	void loadBowTextureFromFile(std::string filename) { bowTexture.loadFromFile(filename); bow.setTexture(&bowTexture); };
 
 protected:
 	void findAndSetAnimation();
 
 
-	sf::Texture playerTexture;
 	sf::Texture texture;
+	GameObject bow;
+	sf::Texture bowTexture;
 
 	sf::RenderWindow* window;
 	sf::View* view;

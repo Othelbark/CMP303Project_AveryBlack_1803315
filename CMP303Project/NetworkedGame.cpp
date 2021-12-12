@@ -523,7 +523,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 
 
 		//update time and wait based on tickrate
-		while (*time < minTimeNextLoop && !in->quiting)
+		while (*time <= minTimeNextLoop && !in->quiting)
 		{
 			//wait until enough time has passed
 			tickrateCV.wait(timeLock);
@@ -613,18 +613,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		}
 
 
-		if (!out->readyForNewPackets && out->connected && out->synchronised) //if connected and synchronised and main does not know to send new packets
-		{
-			out->readyForNewPackets = true; //Tell main that we are ready for a new packets
-
-			if (in->inputQueue.getSize() <= 0 && !in->quiting) //if there are no packets pending
-			{
-				packetsToSendCV.wait(packetsToSendLock); // wait for main to tell us there are new packets
-			}
-		}
-
-
-		// Send time packet if not synchronised and not host
+		// Send time packet if connected, not synchronised, and not host
 		if (out->connectingToHost && out->connected && !out->synchronised && otherIP != nullptr)
 		{
 			sf::Packet timePacket;
@@ -632,6 +621,17 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			timePacket << timeThisLoop;
 
 			socket.send(timePacket, *otherIP, HOST_PORT);
+		}
+
+
+		if (!out->readyForNewPackets && out->connected && out->synchronised) //if connected and synchronised and main does not know to send new packets
+		{
+
+			while (in->inputQueue.getSize() <= 0 && !in->quiting) //if there are no packets pending
+			{
+				out->readyForNewPackets = true; //Tell main that we are ready for a new packets
+				packetsToSendCV.wait(packetsToSendLock); // wait for main to tell us there are new packets
+			}
 		}
 
 
@@ -728,6 +728,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 									timeMutex.lock();
 									*time += timeDifferce;
 									timeMutex.unlock();
+									minTimeNextLoop += timeDifferce; //don't break tickrate caculations
 
 									out->synchronised = true;
 									out->message = "Connected and Synchronised";

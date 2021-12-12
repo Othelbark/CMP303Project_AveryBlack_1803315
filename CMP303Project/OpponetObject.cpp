@@ -42,15 +42,9 @@ void OpponetObject::update(float dt)
 		isWalking = false;
 	}
 
-	//if player is dead
-	if (!alive)
-	{
-		currentAni = &deathAni;
-	}
-	else
-	{
-		findAndSetAnimation();
-	}
+
+	findAndSetAnimation();
+	
 
 	// if the player is alive but the death animation has been played
 	if (alive && !deathAni.getPlaying())

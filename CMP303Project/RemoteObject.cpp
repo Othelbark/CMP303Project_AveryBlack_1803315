@@ -5,7 +5,7 @@ RemoteObject::RemoteObject()
 {
 	predictionType = PredictionType::QUADRATIC;
 	recivedAnyData = false;
-	tickrate = 30;
+	tickrate = 20;
 }
 
 RemoteObject::~RemoteObject()
@@ -36,20 +36,23 @@ void RemoteObject::updatePrediction(float gameTime, float dt)
 
 void RemoteObject::addState(const ObjectState& state)
 {
-	actualStates.push_back(LocalObjectState(state));
+	if (state.time > actualStates[actualStates.size() - 1].time) //disreguard updates timestamped for before most recent update
+	{
+		actualStates.push_back(LocalObjectState(state));
 
-	if (actualStates.size() > 3)
-	{
-		actualStates.erase(actualStates.begin());
-	}
+		if (actualStates.size() > 3)
+		{
+			actualStates.erase(actualStates.begin());
+		}
 
-	if (predictedStates.size() > 0)
-	{
-		latestPredictionAtLastUpdate = getCurrentPrediction();
-	}
-	else
-	{
-		latestPredictionAtLastUpdate = LocalObjectState(state);
+		if (predictedStates.size() > 0)
+		{
+			latestPredictionAtLastUpdate = getCurrentPrediction();
+		}
+		else
+		{
+			latestPredictionAtLastUpdate = LocalObjectState(state);
+		}
 	}
 	recivedAnyData = true;
 }

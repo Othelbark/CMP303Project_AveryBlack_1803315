@@ -56,7 +56,7 @@ struct NetworkingThreadOutput
 
 // Definetions 
 constexpr unsigned int TARGET_FRAMRATE = 60;
-constexpr float TICKRATE = 30;
+constexpr float TICKRATE = 20;
 constexpr unsigned short HOST_PORT = 55555;
 constexpr unsigned short CLIENT_PORT = 55554;
 
