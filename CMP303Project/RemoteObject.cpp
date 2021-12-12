@@ -4,6 +4,7 @@
 RemoteObject::RemoteObject()
 {
 	predictionType = PredictionType::QUADRATIC;
+	recivedDataThisUpdate = true;
 	recivedAnyData = false;
 	tickrate = 20;
 }
@@ -12,7 +13,7 @@ RemoteObject::~RemoteObject()
 {
 }
 
-void RemoteObject::updatePrediction(float gameTime, float dt)
+void RemoteObject::updatePrediction(float gameTime)
 {
 	const int statesCount = actualStates.size();
 	if (statesCount < 1)
@@ -30,12 +31,14 @@ void RemoteObject::updatePrediction(float gameTime, float dt)
 		predictLinear(gameTime);
 		return;
 	}
-	justInterpolate(gameTime, dt);
+	justInterpolate(gameTime);
 	return;
 }
 
 void RemoteObject::addState(const ObjectState& state)
 {
+	recivedDataThisUpdate = true;
+	recivedAnyData = true;
 	int statesCount = actualStates.size();
 	if (statesCount > 0) //if there is at least one state already
 	{
@@ -62,7 +65,6 @@ void RemoteObject::addState(const ObjectState& state)
 	{
 		latestPredictionAtLastUpdate = LocalObjectState(state);
 	}
-	recivedAnyData = true;
 }
 
 LocalObjectState RemoteObject::getCurrentPrediction()
@@ -81,7 +83,7 @@ void RemoteObject::addPrediction(const LocalObjectState& pre)
 	}
 }
 
-void RemoteObject::justInterpolate(float gameTime, float dt)
+void RemoteObject::justInterpolate(float gameTime)
 {
 	LocalObjectState prediction(gameTime);
 

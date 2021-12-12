@@ -24,6 +24,9 @@ void OpponetObject::update(float dt)
 		velocity = (newPosition - getPosition()) / dt;
 
 		setPosition(getCurrentPrediction().pos);
+
+
+		//TODO bow roation
 	}
 
 

@@ -164,7 +164,7 @@ void NetworkedGame::run()
 		case (State::LEVEL_ONE):
 		case (State::FINISHED):
 
-			currentLevel->updatePredictions(totalTime, deltaTimeAsSeconds);
+			currentLevel->updatePredictions(totalTime);
 			currentLevel->handleInput(deltaTimeAsSeconds);
 			currentLevel->update(deltaTimeAsSeconds);
 			currentLevel->render();

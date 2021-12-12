@@ -14,6 +14,7 @@ PlayerObject::PlayerObject()
 
 	// Bow
 	bow.setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
+	bow.setOrigin(bow.getSize().x / 2.0f, bow.getSize().y / 2.0f);
 
 
 	// initialise gravity value (gravity 9.8, 64 scale, 64 p/s this will need to be uniform)
@@ -133,6 +134,7 @@ void PlayerObject::handleInput(float dt)
 			isAiming = false;
 
 			// fire arrow here
+			projectileManager->spawnProjectile(this, bow.getPosition(), sf::Vector2f(200, -80));
 		}
 
 	}
@@ -286,20 +288,20 @@ void PlayerObject::findAndSetAnimation()
 		{
 			if (getPosition().x < 640)
 			{
-				bow.setPosition(getPosition() + sf::Vector2f(3 * tileScaleFactor, 15 * tileScaleFactor));
+				bow.setPosition(getPosition() + sf::Vector2f(28 * tileScaleFactor, 40 * tileScaleFactor));
 			}
 			else
 			{
-				bow.setPosition(getPosition() + sf::Vector2f(47 * tileScaleFactor, 15 * tileScaleFactor));
+				bow.setPosition(getPosition() + sf::Vector2f(22 * tileScaleFactor, 40 * tileScaleFactor));
 			}
 		}
 		else if (isFlipped)
 		{
-			bow.setPosition(getPosition() + sf::Vector2f(42 * tileScaleFactor, 1 * tileScaleFactor));
+			bow.setPosition(getPosition() + sf::Vector2f(17 * tileScaleFactor, 26 * tileScaleFactor));
 		}
 		else
 		{
-			bow.setPosition(getPosition() + sf::Vector2f(8 * tileScaleFactor, 1 * tileScaleFactor));
+			bow.setPosition(getPosition() + sf::Vector2f(33 * tileScaleFactor, 26 * tileScaleFactor));
 		}
 	}
 	else

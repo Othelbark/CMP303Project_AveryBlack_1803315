@@ -46,7 +46,10 @@
     <ClCompile Include="NetworkedGame.cpp" />
     <ClCompile Include="OpponetObject.cpp" />
     <ClCompile Include="PlayerObject.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="RemoteObject.cpp" />
+    <ClCompile Include="RemoteProjectile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CreditsLevel.h" />
@@ -70,7 +73,10 @@
     <ClInclude Include="ObjectState.h" />
     <ClInclude Include="OpponetObject.h" />
     <ClInclude Include="PlayerObject.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="RemoteObject.h" />
+    <ClInclude Include="RemoteProjectile.h" />
     <ClInclude Include="SafeQueue.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

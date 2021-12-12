@@ -10,7 +10,7 @@ public:
 	RemoteObject();
 	~RemoteObject();
 
-	void updatePrediction(float gameTime, float dt);
+	void updatePrediction(float gameTime);
 
 	virtual void addState(const ObjectState& state);
 
@@ -19,10 +19,13 @@ public:
 
 	LocalObjectState getCurrentPrediction();
 
+	bool didReciveDataThisUpdate() { return recivedDataThisUpdate; };
+	void resetRecivedDataThisUpdate() { recivedDataThisUpdate = false; };
+
 protected:
 	void addPrediction(const LocalObjectState& pre);
 
-	void justInterpolate(float gameTime, float dt);
+	void justInterpolate(float gameTime);
 	void predictLinear(float gameTime);
 	void predictQuadratic(float gameTime);
 
@@ -30,6 +33,7 @@ protected:
 	sf::Uint16 ID;
 	LocalObjectState latestPredictionAtLastUpdate;
 	bool recivedAnyData;
+	bool recivedDataThisUpdate;
 	int tickrate;
 
 	std::vector<LocalObjectState> actualStates;

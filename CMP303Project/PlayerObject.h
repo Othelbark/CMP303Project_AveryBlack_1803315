@@ -4,6 +4,7 @@
 #include "Framework/Collision.h"
 #include "Framework/AudioManager.h"
 #include "Framework/Vector.h"
+#include "ProjectileManager.h"
 
 class PlayerObject : public GameObject
 {
@@ -24,11 +25,14 @@ public:
 	void setWindow(sf::RenderWindow* hwnd) { window = hwnd; };
 	void setView(sf::View* vw) { view = vw; };
 	void setAudio(AudioManager* aud) { audio = aud; };
+	void setProjectileManager(ProjectileManager* proMan) { projectileManager = proMan; };
 
 	void setTileScaleFactor(int sF) { tileScaleFactor = sF; };
 
 	void loadTextureFromFile(std::string filename) { texture.loadFromFile(filename); setTexture(&texture); };
 	void loadBowTextureFromFile(std::string filename) { bowTexture.loadFromFile(filename); bow.setTexture(&bowTexture); };
+
+	float getBowRotation() { return bow.getRotation(); };
 
 protected:
 	void findAndSetAnimation();
@@ -41,10 +45,11 @@ protected:
 	sf::RenderWindow* window;
 	sf::View* view;
 	AudioManager* audio;
+	ProjectileManager* projectileManager;
 
 	//scale
 	float scale;
-	//gravity and jump vectors
+	//gravity
 	sf::Vector2f gravity;
 
 	//scale factor

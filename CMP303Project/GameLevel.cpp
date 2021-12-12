@@ -11,6 +11,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	player.setWindow(hwnd);
 	player.setInput(in);
 	player.setAudio(aud);
+	player.setProjectileManager(&projectileManager);
 	player.setAlive(true);
 	player.setView(&view);
 	player.setPosition(0, 0);
@@ -51,6 +52,9 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		opponent.loadTextureFromFile("gfx/player_1.png");
 		opponent.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
+
+	projectileManager.setOpponentP(&opponent);
+	projectileManager.setAudio(aud);
 
 	// towers back
 	towerLeftBackTexture.loadFromFile("gfx/Back_layer_tower_left.png");
@@ -186,21 +190,18 @@ void GameLevel::update(float dt)
 	updateGameStateAndButtons(dt);
 
 
-	// if the game is playing
-	if (levelState != LevelState::LOST && levelState != LevelState::WON)
-	{
-		//update game
-		updateGame(dt);
-	}
+	//update game
+	updateGame(dt);
 
 
 	//fix view
 	fixViewPositionSizeAndWindowAspect();
 }
 
-void GameLevel::updatePredictions(float currentTime, float dt)
+void GameLevel::updatePredictions(float currentTime)
 {
-	opponent.updatePrediction(currentTime, dt);
+	opponent.updatePrediction(currentTime);
+	projectileManager.updatePredictions(currentTime);
 }
 
 // Render level
@@ -219,6 +220,9 @@ void GameLevel::render()
 	player.render();
 	opponent.render();
 
+	//draw projectiles
+	projectileManager.render(window);
+
 	//draw towers back
 	window->draw(towerLeftFront);
 	window->draw(towerRightFront);
@@ -234,6 +238,8 @@ void GameLevel::render()
 
 void GameLevel::giveStates(sf::Packet statesPacket)
 {
+	projectileManager.resetRecivedDataThisUpdate();
+
 	sf::Uint8 statesCount = 0;
 	statesPacket >> statesCount;
 
@@ -247,6 +253,10 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 			//player
 			opponent.addState(state);
 		}
+		else if ((state.ID & PROJECTILE_ID_MASK) == PROJECTILE_ID_MASK)
+		{
+			projectileManager.giveState(state);
+		}
 	}
 }
 
@@ -255,7 +265,7 @@ sf::Packet GameLevel::getStates(float timeNow)
 	sf::Packet statesPacket;
 	statesPacket << GAMEOBJECT_STATES_PACKET << GAMEOBJECT_STATES_PACKET;
 
-	sf::Uint8 statesCount = 1;// + projectile count, etc. 
+	sf::Uint8 statesCount = 1 + projectileManager.getLocalProjectileCount();// + projectile count, etc. 
 	statesPacket << statesCount;
 
 	//add player
@@ -263,9 +273,12 @@ sf::Packet GameLevel::getStates(float timeNow)
 	playerState.ID = 0;
 	playerState.x = player.getPosition().x;
 	playerState.y = player.getPosition().y;
-	playerState.rotation = player.getRotation();
+	playerState.rotation = player.getBowRotation();
+	playerState.alive = player.isAlive();
 	playerState.time = timeNow;
 	statesPacket << playerState;
+
+	projectileManager.getStates(statesPacket, timeNow);
 
 	return statesPacket;
 }
@@ -338,6 +351,13 @@ void GameLevel::updateGame(float dt)
 	player.update(dt);
 	opponent.update(dt);
 
+	projectileManager.update(dt);
+	projectileManager.checkUnitCollisions(&player);
+	projectileManager.checkMapCollisions(&ground);
+	projectileManager.checkMapCollisions(&towerLeftFront);
+	projectileManager.checkMapCollisions(&towerRightFront);
+
+
 	if (Collision::checkBoundingBox(&player, &towerLeftFront))
 	{
 		player.collisionResponse(&towerLeftFront);
@@ -402,11 +422,12 @@ void GameLevel::drawUI()
 	}
 }
 
-sf::Packet& operator <<(sf::Packet& packet, const ObjectState& objectState)
+sf::Packet& operator<<(sf::Packet& packet, const ObjectState& objectState)
 {
-	return packet << objectState.ID << objectState.x << objectState.y << objectState.rotation << objectState.time;
+	return packet << objectState.ID << objectState.alive << objectState.x << objectState.y << objectState.rotation << objectState.time;
 }
-sf::Packet& operator >>(sf::Packet& packet, ObjectState& objectState)
+
+sf::Packet& operator>>(sf::Packet& packet, ObjectState& objectState)
 {
-	return packet >> objectState.ID >> objectState.x >> objectState.y >> objectState.rotation >> objectState.time;
+	return packet >> objectState.ID >> objectState.alive >> objectState.x >> objectState.y >> objectState.rotation >> objectState.time;
 }
