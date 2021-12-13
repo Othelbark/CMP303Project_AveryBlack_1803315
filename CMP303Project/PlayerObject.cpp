@@ -10,11 +10,17 @@ PlayerObject::PlayerObject()
 	// initalise size, scale and collision box
 	setTileScaleFactor(1.5f);
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
-	setCollisionBox(12 * tileScaleFactor, 6 * tileScaleFactor, 26 * tileScaleFactor, 44 * tileScaleFactor);
+	setCollisionBox(17 * tileScaleFactor, 17 * tileScaleFactor, 16 * tileScaleFactor, 33 * tileScaleFactor);
 
 	// Bow
 	bow.setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 	bow.setOrigin(bow.getSize().x / 2.0f, bow.getSize().y / 2.0f);
+
+	aimingDisplayTexture.loadFromFile("gfx/Arrow.png");
+	aimingDisplay.setSize(sf::Vector2f(100, 100));
+	aimingDisplay.setOrigin(0, 50);
+	aimingDisplay.setTexture(&aimingDisplayTexture);
+	aimingDisplay.setTextureRect(sf::IntRect(0, 0, 49, 49));
 
 
 	// initialise gravity value (gravity 9.8, 64 scale, 64 p/s this will need to be uniform)
@@ -69,6 +75,10 @@ PlayerObject::PlayerObject()
 
 	currentAni = &idleAni;
 	setTextureRect(currentAni->getCurrentFrame());
+
+	//bow power
+	maxArrowVel = 800.0f;
+	magnitudeScale = 8.0f;
 
 	//initalise movement and animation variables
 	horizontalDirection = 0;
@@ -137,14 +147,19 @@ void PlayerObject::handleInput(float dt)
 		// Else if left mouse is not down and is aiming
 		else if (!input->isMouseLDown() && isAiming == true)
 		{
+			sf::Vector2f direction = bow.getPosition() - sf::Vector2f(mouseX, mouseY);
+			
+			float magnitude = std::min(Vector::magnitude(direction) * magnitudeScale, maxArrowVel);
+			direction = Vector::normalise(direction);
 
 			// fire arrow here
-			projectileManager->spawnProjectile(this, bow.getPosition(), bow.getPosition() - sf::Vector2f(mouseX, mouseY));
+			projectileManager->spawnProjectile(this, bow.getPosition(), direction * magnitude);
 		}
 		// Else if left-mouse is down and is aiming
 		else if (input->isMouseLDown() && isAiming == true)
 		{
 			sf::Vector2f direction = bow.getPosition() - sf::Vector2f(mouseX, mouseY);
+			float magnitude = std::min(Vector::magnitude(direction) * magnitudeScale, maxArrowVel);
 
 			sf::Vector2f normalisedDirection = Vector::normalise(direction);
 			float angleRad = std::atan2(normalisedDirection.y, normalisedDirection.x);
@@ -166,6 +181,16 @@ void PlayerObject::handleInput(float dt)
 				isFlipped = false;
 				bow.setRotation(angleDeg);
 			}
+
+			//aiming display
+			float magnitudePortion = magnitude / maxArrowVel;
+			magnitudePortion = (magnitudePortion * 0.7f) + 0.3f; //scale magnitudePortion into the 0.3-1 range
+			aimingDisplay.setRotation(objectiveBowRotation);
+			aimingDisplay.setScale(magnitudePortion, magnitudePortion);
+			if (isFlipped)
+				aimingDisplay.setPosition(bow.getPosition() - (normalisedDirection * 10.0f));
+			else
+				aimingDisplay.setPosition(bow.getPosition() + (normalisedDirection * 10.0f));
 		}
 
 		if (!input->isMouseLDown())
@@ -238,6 +263,11 @@ void PlayerObject::render()
 			bow.setScale(sf::Vector2f(1, 1));
 		}
 		window->draw(bow);
+
+		if (isAiming)
+		{
+			window->draw(aimingDisplay);
+		}
 	}
 }
 
@@ -289,12 +319,12 @@ void PlayerObject::collisionResponse(GameObject* collider)
 		else if (xDiff < 0)
 		{
 			//collision from left
-			setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (12 * tileScaleFactor), getPosition().y);
+			setPosition(colliderCollisionBox.left - getSize().x - 0.1 + (17 * tileScaleFactor), getPosition().y);
 		}
 		else
 		{
 			//collision from right
-			setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (12 * tileScaleFactor), getPosition().y);
+			setPosition(colliderCollisionBox.left + colliderCollisionBox.width + 0.1 - (17 * tileScaleFactor), getPosition().y);
 		}
 
 	}
@@ -316,7 +346,7 @@ void PlayerObject::collisionResponse(GameObject* collider)
 			if (velocity.y < 0)
 			{
 				velocity.y = (-velocity.y / 3);
-				setPosition(getPosition().x, colliderCollisionBox.top + colliderCollisionBox.height - (6 * tileScaleFactor));
+				setPosition(getPosition().x, colliderCollisionBox.top + colliderCollisionBox.height - (17 * tileScaleFactor));
 			}
 		}
 	}

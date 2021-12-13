@@ -43,6 +43,9 @@ protected:
 	sf::Texture bowTexture;
 	float objectiveBowRotation;
 
+	GameObject aimingDisplay;
+	sf::Texture aimingDisplayTexture;
+
 	sf::RenderWindow* window;
 	sf::View* view;
 	AudioManager* audio;
@@ -63,6 +66,9 @@ protected:
 	Animation aimingAni;
 	Animation deathAni;
 
+	//bow power
+	float maxArrowVel;
+	float magnitudeScale;
 
 	//animation and movement variables
 	int horizontalDirection;
