@@ -26,13 +26,16 @@ void RemoteObject::updatePrediction(float gameTime)
 		predictQuadratic(gameTime);
 		return;
 	}
-	if (statesCount >= 2 && predictionType != PredictionType::NONE)
+	if (statesCount >= 2 && predictionType == PredictionType::LINEAR)
 	{
 		predictLinear(gameTime);
 		return;
 	}
-	justInterpolate(gameTime);
-	return;
+	if (predictionType == PredictionType::NONE)
+	{
+		justInterpolate(gameTime);
+		return;
+	}
 }
 
 void RemoteObject::addState(const ObjectState& state)
@@ -69,7 +72,11 @@ void RemoteObject::addState(const ObjectState& state)
 
 LocalObjectState RemoteObject::getCurrentPrediction()
 {
-	assert(predictedStates.size() > 0);
+	//assert(predictedStates.size() > 0);
+	if (predictedStates.size() == 0)
+	{
+		return latestPredictionAtLastUpdate;
+	}
 	return predictedStates[predictedStates.size() - 1];
 }
 
