@@ -93,16 +93,20 @@ void RemoteObject::justInterpolate(float gameTime)
 	sf::Vector2f targetPosition = state0.pos;
 	float targetRotation = state0.rotation;
 
-
 	sf::Vector2f positionAtLastData = latestPredictionAtLastUpdate.pos;
 	float rotationAtLastData = latestPredictionAtLastUpdate.rotation;
+
+
+	float rotationDifference = targetRotation - rotationAtLastData;
+	if (abs(rotationDifference) > 180.0f)
+		rotationDifference = fixRelativeRotation(rotationDifference);
 
 
 	//Interpolate
 	float lerpFactor = std::min(1.0f, (gameTime - latestPredictionAtLastUpdate.time) * tickrate);
 
 	sf::Vector2f interpolatedPosition = positionAtLastData + (lerpFactor * (targetPosition - positionAtLastData));
-	float interpolatedRotation = rotationAtLastData + (lerpFactor * (targetRotation - rotationAtLastData));
+	float interpolatedRotation = rotationAtLastData + (lerpFactor * (rotationDifference));
 
 
 	prediction.pos = interpolatedPosition;

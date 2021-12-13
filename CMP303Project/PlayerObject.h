@@ -32,7 +32,7 @@ public:
 	void loadTextureFromFile(std::string filename) { texture.loadFromFile(filename); setTexture(&texture); };
 	void loadBowTextureFromFile(std::string filename) { bowTexture.loadFromFile(filename); bow.setTexture(&bowTexture); };
 
-	float getBowRotation() { return bow.getRotation(); };
+	float getBowRotation() { return objectiveBowRotation; };
 
 protected:
 	void findAndSetAnimation();
@@ -41,6 +41,7 @@ protected:
 	sf::Texture texture;
 	GameObject bow;
 	sf::Texture bowTexture;
+	float objectiveBowRotation;
 
 	sf::RenderWindow* window;
 	sf::View* view;

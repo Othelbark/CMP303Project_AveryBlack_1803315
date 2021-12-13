@@ -65,7 +65,7 @@ PlayerObject::PlayerObject()
 	deathAni.addFrame(sf::IntRect(250, 150, 50, 50));
 	deathAni.addFrame(sf::IntRect(300, 150, 50, 50));
 	deathAni.setLooping(false);
-	deathAni.setFrameSpeed(0.2f);
+	deathAni.setFrameSpeed(0.05f);
 
 	currentAni = &idleAni;
 	setTextureRect(currentAni->getCurrentFrame());
@@ -137,8 +137,6 @@ void PlayerObject::handleInput(float dt)
 		// Else if left mouse is not down and is aiming
 		else if (!input->isMouseLDown() && isAiming == true)
 		{
-			// Set held to false
-			isAiming = false;
 
 			// fire arrow here
 			projectileManager->spawnProjectile(this, bow.getPosition(), bow.getPosition() - sf::Vector2f(mouseX, mouseY));
@@ -151,6 +149,7 @@ void PlayerObject::handleInput(float dt)
 			sf::Vector2f normalisedDirection = Vector::normalise(direction);
 			float angleRad = std::atan2(normalisedDirection.y, normalisedDirection.x);
 			float angleDeg = (angleRad / 3.14159f) * 180.0f;
+			objectiveBowRotation = angleDeg;
 
 			if (abs(angleDeg) > 90.0f && abs(angleDeg) < 270.0f)
 			{
@@ -168,10 +167,17 @@ void PlayerObject::handleInput(float dt)
 				bow.setRotation(angleDeg);
 			}
 		}
-		//Left mouse not down and not aiming
-		else
+
+		if (!input->isMouseLDown())
+		{
+			// Set aiming to false
+			isAiming = false;
+		}
+
+		if (isAiming == false)
 		{
 			bow.setRotation(0);
+			objectiveBowRotation = 0;
 		}
 
 	}
@@ -221,7 +227,7 @@ void PlayerObject::update(float dt)
 void PlayerObject::render()
 {
 	window->draw(*this);
-	if (bow.isAlive())
+	if (isAlive())
 	{
 		if ((isFlipped && isAiming) || (getPosition().x > 640 && !isAiming)) 
 		{

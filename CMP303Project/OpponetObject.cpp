@@ -25,31 +25,52 @@ void OpponetObject::update(float dt)
 
 		setPosition(getCurrentPrediction().pos);
 
-
-		if (isAiming)
-		{
-			bow.setRotation(getCurrentPrediction().rotation);
-		}
-
 		setAlive(getCurrentPrediction().alive);
+
+
+		float rotation = getCurrentPrediction().rotation;
+		if (rotation == 0.0f)
+		{
+			isAiming = false;
+			bow.setRotation(0);
+			aimingAni.reset();
+			aimingAni.setPlaying(true);
+		}
+		else
+		{
+			isAiming = true;
+			if (abs(rotation) > 90.0f && abs(rotation) < 270.0f)
+			{
+				isFlipped = true;
+				rotation += 180; 
+
+				bow.setRotation(rotation);
+			}
+			else
+			{
+				isFlipped = false;
+				bow.setRotation(rotation);
+			}
+		}
 	}
 
 
 	if (velocity.x > 0)
 	{
-		isFlipped = false;
 		isWalking = true;
+		if (!isAiming)
+			isFlipped = false;
 	}
 	else if (velocity.x < 0)
 	{
-		isFlipped = true;
 		isWalking = true;
+		if (!isAiming)
+			isFlipped = true;
 	}
 	else
 	{
 		isWalking = false;
 	}
-
 
 	findAndSetAnimation();
 	
