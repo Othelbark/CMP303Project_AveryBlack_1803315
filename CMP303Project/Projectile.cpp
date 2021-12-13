@@ -21,7 +21,7 @@ Projectile::Projectile()
 	deathAni.addFrame(sf::IntRect(196, 0, 49, 49));
 	deathAni.addFrame(sf::IntRect(245, 0, 49, 49));
 	deathAni.setLooping(false);
-	deathAni.setFrameSpeed(0.1f);
+	deathAni.setFrameSpeed(0.15f);
 
 	currentAnimation = &animation;
 	setTextureRect(currentAnimation->getCurrentFrame());

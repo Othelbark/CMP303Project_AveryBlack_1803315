@@ -96,7 +96,7 @@ void RemoteObject::justInterpolate(float gameTime)
 	sf::Vector2f positionAtLastData = latestPredictionAtLastUpdate.pos;
 	float rotationAtLastData = latestPredictionAtLastUpdate.rotation;
 
-
+	//correct for rotations over the angle value looping boudry
 	float rotationDifference = targetRotation - rotationAtLastData;
 	if (abs(rotationDifference) > 180.0f)
 		rotationDifference = fixRelativeRotation(rotationDifference);
@@ -107,6 +107,13 @@ void RemoteObject::justInterpolate(float gameTime)
 
 	sf::Vector2f interpolatedPosition = positionAtLastData + (lerpFactor * (targetPosition - positionAtLastData));
 	float interpolatedRotation = rotationAtLastData + (lerpFactor * (rotationDifference));
+
+
+	//fix for remote crossbow rotation
+	if (targetRotation == 0)
+	{
+		interpolatedRotation = 0;
+	}
 
 
 	prediction.pos = interpolatedPosition;

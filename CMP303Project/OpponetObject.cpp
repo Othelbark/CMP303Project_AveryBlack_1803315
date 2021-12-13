@@ -33,8 +33,11 @@ void OpponetObject::update(float dt)
 		{
 			isAiming = false;
 			bow.setRotation(0);
-			aimingAni.reset();
-			aimingAni.setPlaying(true);
+			if (!aimingAni.getPlaying())
+			{
+				aimingAni.reset();
+				aimingAni.setPlaying(true);
+			}
 		}
 		else
 		{
