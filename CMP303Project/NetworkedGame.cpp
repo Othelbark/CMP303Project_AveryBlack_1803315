@@ -163,6 +163,7 @@ void NetworkedGame::run()
 			break;
 		case (State::LEVEL_ONE):
 		case (State::FINISHED):
+		case (State::QUITING):
 
 			currentLevel->updatePredictions(totalTime);
 			currentLevel->handleInput(deltaTimeAsSeconds);
@@ -184,7 +185,7 @@ void NetworkedGame::run()
 		if (sendPacketsThisLoop)
 		{
 			//send gameobject state packets
-			if (currentGameState.getCurrentState() == State::LEVEL_ONE && currentLevel != nullptr) 
+			if (currentLevel != nullptr) 
 			{
 
 				sf::Packet gameobjectStatesPacket = currentLevel->getStates(totalTime);

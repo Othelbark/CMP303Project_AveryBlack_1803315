@@ -274,7 +274,10 @@ sf::Packet GameLevel::getStates(float timeNow)
 	playerState.x = player.getPosition().x;
 	playerState.y = player.getPosition().y;
 	playerState.rotation = player.getBowRotation();
-	playerState.alive = player.isAlive();
+	if (player.isAlive())
+		playerState.alive = 1;
+	else
+		playerState.alive = 0;
 	playerState.time = timeNow;
 	statesPacket << playerState;
 
@@ -302,10 +305,12 @@ void GameLevel::updateGameStateAndButtons(float dt)
 	}
 
 	//if player is not alive
-	if (false && levelState != LevelState::LOST) // TODO lose condition
+	if (!player.isAlive() && levelState != LevelState::LOST) // TODO lose condition
 	{
 		// level is lost
+		gameState->setCurrentState(State::QUITING);
 		levelState = LevelState::LOST;
+		levelFinished = true;
 	}
 
 	//if level is not playing: resolve menu buttons

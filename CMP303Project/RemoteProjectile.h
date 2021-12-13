@@ -10,5 +10,6 @@ public:
     ~RemoteProjectile();
 
     void update(float dt) override;
+
 };
 

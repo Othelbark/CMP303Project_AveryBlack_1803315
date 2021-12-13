@@ -107,6 +107,7 @@ void RemoteObject::justInterpolate(float gameTime)
 
 	prediction.pos = interpolatedPosition;
 	prediction.rotation = interpolatedRotation;
+	prediction.alive = state0.alive;
 	addPrediction(prediction);
 }
 
@@ -124,7 +125,10 @@ void RemoteObject::predictLinear(float gameTime)
 	float timeSinceLastStateGenerated = gameTime - state0.time;
 
 	sf::Vector2f velocity = (state0.pos - state1.pos) / (state0.time - state1.time);
-	float rotationalVelocity = (state0.rotation - state1.rotation) / (state0.time - state1.time); //TODO this will probably fail
+	float rotationDifference = state0.rotation - state1.rotation;
+	if (abs(rotationDifference) > 180.0f)
+		rotationDifference = fixRelativeRotation(rotationDifference);
+	float rotationalVelocity = rotationDifference / (state0.time - state1.time);
 
 	sf::Vector2f position = state0.pos + (velocity * timeSinceLastStateGenerated);
 	float rotation = state0.rotation + (rotationalVelocity * timeSinceLastStateGenerated);
@@ -135,6 +139,7 @@ void RemoteObject::predictLinear(float gameTime)
 	{
 		prediction.pos = position;
 		prediction.rotation = rotation;
+		prediction.alive = state0.alive;
 		addPrediction(prediction);
 		return;
 	}
@@ -147,10 +152,13 @@ void RemoteObject::predictLinear(float gameTime)
 	float timeSinceLastPrediction = gameTime - pre0.time;
 
 	sf::Vector2f velocityFP = (pre0.pos - pre1.pos) / (pre0.time - pre1.time);
-	float rotationalVelocityFP = (pre0.rotation - pre1.rotation) / (pre0.time - pre1.time); //TODO this will probably fail
+	float rotationDifferenceFP = pre0.rotation - pre1.rotation;
+	if (abs(rotationDifferenceFP) > 180.0f)
+		rotationDifferenceFP = fixRelativeRotation(rotationDifferenceFP);
+	float rotationalVelocityFP = rotationDifferenceFP / (pre0.time - pre1.time);
 
-	sf::Vector2f positionFP = pre0.pos + (velocity * timeSinceLastPrediction);
-	float rotationFP = pre0.rotation + (rotationalVelocity * timeSinceLastPrediction);
+	sf::Vector2f positionFP = pre0.pos + (velocityFP * timeSinceLastPrediction);
+	float rotationFP = pre0.rotation + (rotationalVelocityFP * timeSinceLastPrediction);
 
 
 	//Interpolate
@@ -162,6 +170,7 @@ void RemoteObject::predictLinear(float gameTime)
 
 	prediction.pos = interpolatedPosition;
 	prediction.rotation = interpolatedRotation;
+	prediction.alive = state0.alive;
 	addPrediction(prediction);
 }
 
@@ -180,10 +189,16 @@ void RemoteObject::predictQuadratic(float gameTime)
 	float timeSinceLastUpdate = gameTime - state0.time;
 
 	sf::Vector2f velocity0 = (state0.pos - state1.pos) / (state0.time - state1.time);
-	float rotationalVelocity0 = (state0.rotation - state1.rotation) / (state0.time - state1.time); 
+	float rotationDifference0 = state0.rotation - state1.rotation;
+	if (abs(rotationDifference0) > 180.0f)
+		rotationDifference0 = fixRelativeRotation(rotationDifference0);
+	float rotationalVelocity0 = rotationDifference0 / (state0.time - state1.time);
 
 	sf::Vector2f velocity1 = (state1.pos - state2.pos) / (state1.time - state2.time);
-	float rotationalVelocity1 = (state1.rotation - state2.rotation) / (state1.time - state2.time); 
+	float rotationDifference1 = state1.rotation - state2.rotation;
+	if (abs(rotationDifference1) > 180.0f)
+		rotationDifference1 = fixRelativeRotation(rotationDifference1);
+	float rotationalVelocity1 = rotationDifference1 / (state1.time - state2.time);
 
 	sf::Vector2f acceleration = (velocity0 - velocity1) / (state0.time - state1.time);
 	float rotationalAcceleration = (rotationalVelocity0 - rotationalVelocity1) / (state0.time - state1.time);
@@ -197,6 +212,7 @@ void RemoteObject::predictQuadratic(float gameTime)
 	{
 		prediction.pos = targetPosition;
 		prediction.rotation = targetRotation;
+		prediction.alive = state0.alive;
 		addPrediction(prediction);
 		return;
 	}
@@ -210,10 +226,16 @@ void RemoteObject::predictQuadratic(float gameTime)
 	float timeSinceLastPrediction = gameTime - pre0.time;
 
 	sf::Vector2f velocityFP0 = (pre0.pos - pre1.pos) / (pre0.time - pre1.time);
-	float rotationalVelocityFP0 = (pre0.rotation - pre1.rotation) / (pre0.time - pre1.time);
+	float rotationDifferenceFP0 = pre0.rotation - pre1.rotation;
+	if (abs(rotationDifferenceFP0) > 180.0f)
+		rotationDifferenceFP0 = fixRelativeRotation(rotationDifferenceFP0);
+	float rotationalVelocityFP0 = rotationDifferenceFP0 / (pre0.time - pre1.time);
 
 	sf::Vector2f velocityFP1 = (pre1.pos - pre2.pos) / (pre1.time - pre2.time);
-	float rotationalVelocityFP1 = (pre1.rotation - pre2.rotation) / (pre1.time - pre2.time);
+	float rotationDifferenceFP1 = pre1.rotation - pre2.rotation;
+	if (abs(rotationDifferenceFP1) > 180.0f)
+		rotationDifferenceFP1 = fixRelativeRotation(rotationDifferenceFP1);
+	float rotationalVelocityFP1 = rotationDifferenceFP1 / (pre1.time - pre2.time);
 
 	sf::Vector2f accelerationFP = (velocityFP0 - velocityFP1) / (pre0.time - pre1.time);
 	float rotationalAccelerationFP = (rotationalVelocityFP0 - rotationalVelocityFP1) / (pre0.time - pre1.time);
@@ -231,5 +253,22 @@ void RemoteObject::predictQuadratic(float gameTime)
 
 	prediction.pos = interpolatedPosition;
 	prediction.rotation = interpolatedRotation;
+	prediction.alive = state0.alive;
 	addPrediction(prediction);
+}
+
+float RemoteObject::fixRelativeRotation(float r)
+{
+
+	float relativeRotationMagnitude = 360.0f - abs(r);
+	if (r > 0)
+	{
+		//positive
+		return -relativeRotationMagnitude;
+	}
+	else
+	{
+		// negitive
+		return relativeRotationMagnitude;
+	}
 }

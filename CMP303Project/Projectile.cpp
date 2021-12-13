@@ -1,3 +1,4 @@
+#pragma once
 #include "Projectile.h"
 #include "Framework\Vector.h"
 #include <cmath>
@@ -14,7 +15,11 @@ Projectile::Projectile()
 	animation.setFrameSpeed(1.0f);
 
 	deathAni.addFrame(sf::IntRect(0, 0, 49, 49));
-	deathAni.addFrame(sf::IntRect(0, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(49, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(98, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(147, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(196, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(245, 0, 49, 49));
 	deathAni.setLooping(false);
 	deathAni.setFrameSpeed(0.1f);
 
@@ -24,12 +29,12 @@ Projectile::Projectile()
 
 	setSize(sf::Vector2f(49 * tileScaleFactor, 49 * tileScaleFactor));
 	setOrigin(getSize().x / 2.0f, getSize().y / 2.0f);
-	setCollisionBox(0, 0, 41, 7);
+	setCollisionBox(-20.5f, -3.5f, 41, 7);
 
 	deathTimer = 5.0f;
 
 	// initialise gravity value (gravity 9.8, 64 scale, 64 p/s)
-	scale = 96.0f;
+	scale = 64.0f;
 	gravity = sf::Vector2f(0, 9.8f) * scale;
 }
 

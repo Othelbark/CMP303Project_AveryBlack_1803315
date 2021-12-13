@@ -26,7 +26,12 @@ void OpponetObject::update(float dt)
 		setPosition(getCurrentPrediction().pos);
 
 
-		//TODO bow roation
+		if (isAiming)
+		{
+			bow.setRotation(getCurrentPrediction().rotation);
+		}
+
+		setAlive(getCurrentPrediction().alive);
 	}
 
 

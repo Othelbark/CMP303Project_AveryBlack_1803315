@@ -56,9 +56,14 @@ PlayerObject::PlayerObject()
 	aimingAni.setFrameSpeed(0.08f);
 	aimingAni.setLooping(false);
 
-	deathAni.addFrame(sf::IntRect(256, 0, 16, 16));
-	deathAni.addFrame(sf::IntRect(272, 0, 16, 16));
-	deathAni.addFrame(sf::IntRect(288, 0, 16, 16));
+	deathAni.addFrame(sf::IntRect(0, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(0, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(50, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(100, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(150, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(200, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(250, 150, 50, 50));
+	deathAni.addFrame(sf::IntRect(300, 150, 50, 50));
 	deathAni.setLooping(false);
 	deathAni.setFrameSpeed(0.2f);
 
@@ -92,13 +97,15 @@ void PlayerObject::handleInput(float dt)
 		{
 			isWalking = true;
 			horizontalDirection = -1;
-			isFlipped = true;
+			if (!isAiming)
+				isFlipped = true;
 		}
 		else if (input->isKeyDown(sf::Keyboard().D))
 		{
 			isWalking = true;
 			horizontalDirection = 1;
-			isFlipped = false;
+			if (!isAiming)
+				isFlipped = false;
 		}
 		else
 		{
@@ -134,7 +141,37 @@ void PlayerObject::handleInput(float dt)
 			isAiming = false;
 
 			// fire arrow here
-			projectileManager->spawnProjectile(this, bow.getPosition(), sf::Vector2f(200, -80));
+			projectileManager->spawnProjectile(this, bow.getPosition(), bow.getPosition() - sf::Vector2f(mouseX, mouseY));
+		}
+		// Else if left-mouse is down and is aiming
+		else if (input->isMouseLDown() && isAiming == true)
+		{
+			sf::Vector2f direction = bow.getPosition() - sf::Vector2f(mouseX, mouseY);
+
+			sf::Vector2f normalisedDirection = Vector::normalise(direction);
+			float angleRad = std::atan2(normalisedDirection.y, normalisedDirection.x);
+			float angleDeg = (angleRad / 3.14159f) * 180.0f;
+
+			if (abs(angleDeg) > 90.0f && abs(angleDeg) < 270.0f)
+			{
+				isFlipped = true;
+				direction = sf::Vector2f(mouseX, mouseY) - bow.getPosition();
+
+				normalisedDirection = Vector::normalise(direction);
+				angleRad = std::atan2(normalisedDirection.y, normalisedDirection.x);
+				angleDeg = (angleRad / 3.14159f) * 180.0f;
+				bow.setRotation(angleDeg);
+			}
+			else
+			{
+				isFlipped = false;
+				bow.setRotation(angleDeg);
+			}
+		}
+		//Left mouse not down and not aiming
+		else
+		{
+			bow.setRotation(0);
 		}
 
 	}
@@ -311,6 +348,7 @@ void PlayerObject::findAndSetAnimation()
 
 	if (!alive)
 	{
+
 		currentAni = &deathAni;
 		return;
 	}

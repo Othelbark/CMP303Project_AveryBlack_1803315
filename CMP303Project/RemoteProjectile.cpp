@@ -1,4 +1,6 @@
+#pragma once
 #include "RemoteProjectile.h"
+#include "Framework\Vector.h"
 
 RemoteProjectile::RemoteProjectile()
 {
@@ -13,7 +15,7 @@ void RemoteProjectile::update(float dt)
 {
 
 	//update position from preditions
-	if (recivedAnyData)
+	if (recivedAnyData && isAlive())
 	{
 		sf::Vector2f newPosition = getCurrentPrediction().pos;
 
@@ -22,5 +24,22 @@ void RemoteProjectile::update(float dt)
 		setPosition(getCurrentPrediction().pos);
 
 		setRotation(getCurrentPrediction().rotation);
+	}
+
+	//animate
+	currentAnimation->animate(dt);
+	if (currentAnimation == &animation)
+		setTextureRect(animation.getCurrentFrame());
+	else
+		setTextureRect(deathAni.getCurrentFrame());
+
+	if (deathTimer > 0.0f)
+	{
+		deathTimer -= dt;
+	}
+	else
+	{
+		currentAnimation = &deathAni;
+		alive = false;
 	}
 }

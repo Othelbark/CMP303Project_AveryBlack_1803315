@@ -29,6 +29,8 @@ protected:
 	void predictLinear(float gameTime);
 	void predictQuadratic(float gameTime);
 
+	float fixRelativeRotation(float r);
+
 	PredictionType predictionType;
 	sf::Uint16 ID;
 	LocalObjectState latestPredictionAtLastUpdate;
