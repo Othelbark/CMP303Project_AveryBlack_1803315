@@ -5,7 +5,7 @@ TargetManager::TargetManager()
 	audio = nullptr;
 	opponentP = nullptr;
 
-	targetTexture.loadFromFile("gfx/Arrow.png");
+	targetTexture.loadFromFile("gfx/Target.png");
 
 	nextTargetID = 0 | TARGET_ID_MASK;
 }
