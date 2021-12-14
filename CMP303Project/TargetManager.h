@@ -31,6 +31,7 @@ public:
 
 	void checkProjectileCollisions(ProjectileManager* projectileManager);
 
+	void spawnTarget(GameObject* source, sf::Vector2f pos);
 
 	//getters and setters
 	void setAudio(AudioManager* aud);

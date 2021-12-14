@@ -133,6 +133,26 @@ void TargetManager::checkProjectileCollisions(ProjectileManager* projectileManag
 	}
 }
 
+void TargetManager::spawnTarget(GameObject* source, sf::Vector2f pos)
+{
+	TargetObject* newTarget = new TargetObject;
+	newTarget->setAlive(true);
+	newTarget->setPosition(pos);
+	newTarget->setFor(source);
+	newTarget->setTexture(&targetTexture);
+
+	if (audio != nullptr)
+	{
+		newTarget->setAudio(audio);
+	}
+
+	localTargets.emplace(nextTargetID, newTarget);
+
+	nextTargetID++;
+	nextTargetID &= 0b0000111111111111; //clear type flag bits
+	nextTargetID |= TARGET_ID_MASK; //add type flag
+}
+
 void TargetManager::setAudio(AudioManager* aud)
 {
 	audio = aud;

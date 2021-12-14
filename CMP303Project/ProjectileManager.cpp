@@ -243,7 +243,6 @@ void ProjectileManager::checkTargetCollision(TargetObject* target)
 
 void ProjectileManager::spawnProjectile(GameObject* source, sf::Vector2f pos, sf::Vector2f vel)
 {
-	//all Projectiles are alive so add a new one
 	Projectile* newProjectile = new Projectile;
 	newProjectile->setAlive(true);
 	newProjectile->setPosition(pos);
