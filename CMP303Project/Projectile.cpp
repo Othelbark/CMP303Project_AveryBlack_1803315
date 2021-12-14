@@ -30,7 +30,7 @@ Projectile::Projectile()
 
 	setSize(sf::Vector2f(49 * tileScaleFactor, 49 * tileScaleFactor));
 	setOrigin(getSize().x / 2.0f, getSize().y / 2.0f);
-	setCollisionBox(-20.5f, -1.5f, 41, 3);
+	setCollisionBox(-2.5f, -2.5f, 5, 5);
 
 	deathTimer = 5.0f;
 

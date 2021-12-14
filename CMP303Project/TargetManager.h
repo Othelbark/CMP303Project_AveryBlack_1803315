@@ -34,16 +34,20 @@ public:
 	void spawnTarget(GameObject* source, sf::Vector2f pos);
 
 	//getters and setters
+	void setView(sf::View* v) { view = v; };
 	void setAudio(AudioManager* aud);
-	void setPlayerP(GameObject* p) { PlayerP = p; };
+	void setPlayerP(GameObject* p) { playerP = p; };
 	void setOpponentP(GameObject* p) { opponentP = p; };
 
 	int getLocalTargetCount() { return localTargets.size(); };
 
+	void setSpawnRight(bool sr) { spawnRight = sr; };
+
 private:
+	sf::View* view;
 	AudioManager* audio;
 
-	GameObject* PlayerP;
+	GameObject* playerP;
 	GameObject* opponentP;
 
 	sf::Uint16 nextTargetID;
@@ -51,5 +55,8 @@ private:
 	std::map<sf::Uint16, TargetObject*> localTargets;
 	std::map<sf::Uint16, RemoteTarget*> remoteTargets;
 	sf::Texture targetTexture;
+
+	float spawnTimer;
+	bool spawnRight;
 };
 

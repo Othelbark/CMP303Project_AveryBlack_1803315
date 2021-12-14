@@ -23,7 +23,7 @@ public:
 
 	bool deadAndDusted();
 
-private:
+protected:
 	AudioManager* audio;
 
     GameObject* targetFor;

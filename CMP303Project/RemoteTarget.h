@@ -5,5 +5,11 @@
 class RemoteTarget :
     public TargetObject, public RemoteObject
 {
+public:
+    RemoteTarget();
+    ~RemoteTarget();
+
+    void update(float dt) override;
+
 };
 

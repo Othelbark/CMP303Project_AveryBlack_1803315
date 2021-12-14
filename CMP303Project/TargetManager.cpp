@@ -1,4 +1,7 @@
+#pragma once
 #include "TargetManager.h"
+#include <cstdlib>
+#include <ctime>
 
 TargetManager::TargetManager()
 {
@@ -8,6 +11,10 @@ TargetManager::TargetManager()
 	targetTexture.loadFromFile("gfx/Target.png");
 
 	nextTargetID = 0 | TARGET_ID_MASK;
+
+
+	spawnRight = false;
+	spawnTimer = 1.0f;
 }
 
 TargetManager::~TargetManager()
@@ -25,12 +32,38 @@ TargetManager::~TargetManager()
 
 void TargetManager::update(float dt)
 {
+	if (localTargets.size() == 0)
+	{
+		if (spawnTimer > 0)
+		{
+			spawnTimer -= dt;
+		}
+		else
+		{
+			std::srand(std::time(nullptr));
+			float randX = ((float)std::rand() / (float)RAND_MAX) * 50; //random float from 0-300;
+			float randY = ((float)std::rand() / (float)RAND_MAX) * 200; //random float from 0-200;
+			sf::Vector2f pos;
+			if (spawnRight)
+			{
+				pos = sf::Vector2f(view->getSize().x - randX - 310.0f, randY + 350.0f);
+			}
+			else
+			{
+				pos = sf::Vector2f(randX + 310.0f, randY + 350.0f);
+			}
+			spawnTarget(playerP, pos);
+			spawnTimer = 2.5f;
+		}
+	}
+
+
 	// for each projectile
 	for (auto it = localTargets.begin(), next_it = it; it != localTargets.end(); it = next_it)
 	{
 		++next_it;
 		it->second->update(dt);
-		if (!it->second->isAlive())//(it->second->deadAndDusted())
+		if (it->second->deadAndDusted())
 		{
 			delete(it->second);
 			localTargets.erase(it);
@@ -94,9 +127,14 @@ void TargetManager::giveState(ObjectState state)
 			newTarget->setFor(opponentP);
 		}
 
+		if (spawnRight)
+		{
+			newTarget->setScale(-1, 1);
+		}
+
 		if (audio != nullptr)
 		{
-			//newTarget->setAudio(audio);
+			newTarget->setAudio(audio);
 		}
 
 		remoteTargets.emplace(ID, newTarget);
@@ -140,6 +178,11 @@ void TargetManager::spawnTarget(GameObject* source, sf::Vector2f pos)
 	newTarget->setPosition(pos);
 	newTarget->setFor(source);
 	newTarget->setTexture(&targetTexture);
+
+	if (!spawnRight)
+	{
+		newTarget->setScale(-1, 1);
+	}
 
 	if (audio != nullptr)
 	{

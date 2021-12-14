@@ -15,16 +15,18 @@ TargetObject::TargetObject()
 	deathAni.addFrame(sf::IntRect(150, 0, 50, 50));
 	deathAni.addFrame(sf::IntRect(200, 0, 50, 50));
 	deathAni.addFrame(sf::IntRect(250, 0, 50, 50));
+	deathAni.addFrame(sf::IntRect(300, 0, 50, 50));
 	deathAni.setLooping(false);
 	deathAni.setFrameSpeed(0.15f);
 
 	currentAnimation = &animation;
 	setTextureRect(currentAnimation->getCurrentFrame());
 
+	float tileScaleFactor = 1.0f;
 
-	setSize(sf::Vector2f(50, 50));
+	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 	setOrigin(getSize().x / 2.0f, getSize().y / 2.0f);
-	setCollisionBox(-9, -11, 18, 22);
+	setCollisionBox(-9 * tileScaleFactor, -11 * tileScaleFactor, 18 * tileScaleFactor, 22 * tileScaleFactor);
 }
 
 TargetObject::~TargetObject()

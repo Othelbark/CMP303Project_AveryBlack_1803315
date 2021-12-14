@@ -56,6 +56,15 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	projectileManager.setOpponentP(&opponent);
 	projectileManager.setAudio(aud);
 
+	targetManager.setOpponentP(&opponent);
+	targetManager.setPlayerP(&player);
+	targetManager.setAudio(aud);
+	targetManager.setView(&view);
+	if (ns->getCurrentState() == NState::CONNECTED) //not host
+		targetManager.setSpawnRight(false);
+	else
+		targetManager.setSpawnRight(true);
+
 	// towers back
 	towerLeftBackTexture.loadFromFile("gfx/Back_layer_tower_left.png");
 	towerLeftBack.setTexture(&towerLeftBackTexture);
@@ -71,12 +80,12 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	towerLeftFront.setTexture(&towerLeftFrontTexture);
 	towerLeftFront.setSize(sf::Vector2f(350, 500));
 	towerLeftFront.setPosition(sf::Vector2f(0, 220));
-	towerLeftFront.setCollisionBox(0, 89, 288, 411);
+	towerLeftFront.setCollisionBox(0, 89, 292, 411);
 	towerRightFrontTexture.loadFromFile("gfx/Front_layer_tower_right.png");
 	towerRightFront.setTexture(&towerRightFrontTexture);
 	towerRightFront.setSize(sf::Vector2f(350, 500));
 	towerRightFront.setPosition(sf::Vector2f(930, 220));
-	towerRightFront.setCollisionBox(62, 89, 288, 411);
+	towerRightFront.setCollisionBox(58, 89, 292, 411);
 
 	// ground
 	groundTexture.loadFromFile("gfx/Front_grass_layer.png");
@@ -214,6 +223,9 @@ void GameLevel::render()
 
 	//draw projectiles
 	projectileManager.render(window);
+
+	//draw targets
+	targetManager.render(window);
 	
 	//draw towers back
 	window->draw(towerLeftBack);
@@ -239,6 +251,7 @@ void GameLevel::render()
 void GameLevel::giveStates(sf::Packet statesPacket)
 {
 	projectileManager.resetRecivedDataThisUpdate();
+	targetManager.resetRecivedDataThisUpdate();
 
 	sf::Uint8 statesCount = 0;
 	statesPacket >> statesCount;
@@ -257,6 +270,10 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 		{
 			projectileManager.giveState(state);
 		}
+		else if ((state.ID & TARGET_ID_MASK) == TARGET_ID_MASK)
+		{
+			targetManager.giveState(state);
+		}
 	}
 }
 
@@ -265,7 +282,7 @@ sf::Packet GameLevel::getStates(float timeNow)
 	sf::Packet statesPacket;
 	statesPacket << GAMEOBJECT_STATES_PACKET << GAMEOBJECT_STATES_PACKET;
 
-	sf::Uint8 statesCount = 1 + projectileManager.getLocalProjectileCount();// + projectile count, etc. 
+	sf::Uint8 statesCount = 1 + projectileManager.getLocalProjectileCount() + targetManager.getLocalTargetCount();
 	statesPacket << statesCount;
 
 	//add player
@@ -282,6 +299,7 @@ sf::Packet GameLevel::getStates(float timeNow)
 	statesPacket << playerState;
 
 	projectileManager.getStates(statesPacket, timeNow);
+	targetManager.getStates(statesPacket, timeNow);
 
 	return statesPacket;
 }
@@ -362,6 +380,8 @@ void GameLevel::updateGame(float dt)
 	projectileManager.checkMapCollision(&towerLeftFront);
 	projectileManager.checkMapCollision(&towerRightFront);
 
+	targetManager.update(dt);
+	targetManager.checkProjectileCollisions(&projectileManager);
 
 	if (Collision::checkBoundingBox(&player, &towerLeftFront))
 	{

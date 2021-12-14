@@ -5,6 +5,7 @@
 #include "PlayerObject.h"
 #include "OpponetObject.h"
 #include "ProjectileManager.h"
+#include "TargetManager.h"
 
 #include <vector>
 #include <SFML\Network\Packet.hpp>
@@ -64,6 +65,7 @@ protected:
 	OpponetObject opponent;
 
 	ProjectileManager projectileManager;
+	TargetManager targetManager;
 
 	// Towers back
 	sf::Texture towerLeftBackTexture;
