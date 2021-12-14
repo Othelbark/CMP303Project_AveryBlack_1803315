@@ -261,12 +261,16 @@ void RemoteObject::predictQuadratic(float gameTime)
 	sf::Vector2f positionFP = pre0.pos + (velocityFP0 * timeSinceLastPrediction) + (0.5f * accelerationFP * timeSinceLastPrediction * timeSinceLastPrediction);
 	float rotationFP = pre0.rotation + (rotationalVelocityFP0 * timeSinceLastPrediction) + (0.5f * rotationalAccelerationFP * timeSinceLastPrediction * timeSinceLastPrediction);
 
+	//correct for rotations over the angle value looping boudry
+	float rotationDifference = targetRotation - rotationFP;
+	if (abs(rotationDifference) > 180.0f)
+		rotationDifference = fixRelativeRotation(rotationDifference);
 
 	//Interpolate
 	float lerpFactor = std::min(1.0f, (gameTime - latestPredictionAtLastUpdate.time) * tickrate);
 
 	sf::Vector2f interpolatedPosition = positionFP + (lerpFactor * (targetPosition - positionFP));
-	float interpolatedRotation = rotationFP + (lerpFactor * (targetRotation - rotationFP));
+	float interpolatedRotation = rotationFP + (lerpFactor * (rotationDifference));
 
 
 	prediction.pos = interpolatedPosition;

@@ -64,6 +64,7 @@ protected:
 	Animation idleAni;
 	Animation walkingAni;
 	Animation aimingAni;
+	Animation walkingAimingAni;
 	Animation deathAni;
 
 	//bow power

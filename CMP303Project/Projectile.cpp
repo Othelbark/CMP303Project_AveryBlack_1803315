@@ -20,6 +20,7 @@ Projectile::Projectile()
 	deathAni.addFrame(sf::IntRect(147, 0, 49, 49));
 	deathAni.addFrame(sf::IntRect(196, 0, 49, 49));
 	deathAni.addFrame(sf::IntRect(245, 0, 49, 49));
+	deathAni.addFrame(sf::IntRect(294, 0, 49, 49));
 	deathAni.setLooping(false);
 	deathAni.setFrameSpeed(0.15f);
 

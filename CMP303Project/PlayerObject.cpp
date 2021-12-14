@@ -19,6 +19,7 @@ PlayerObject::PlayerObject()
 	aimingDisplayTexture.loadFromFile("gfx/Arrow.png");
 	aimingDisplay.setSize(sf::Vector2f(100, 100));
 	aimingDisplay.setOrigin(0, 50);
+	aimingDisplay.setPosition(0, 0);
 	aimingDisplay.setTexture(&aimingDisplayTexture);
 	aimingDisplay.setTextureRect(sf::IntRect(0, 0, 49, 49));
 
@@ -37,7 +38,7 @@ PlayerObject::PlayerObject()
 	idleAni.addFrame(sf::IntRect(150, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(200, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(150, 0, 50, 50));
-	idleAni.addFrame(sf::IntRect(300, 0, 50, 50));
+	idleAni.addFrame(sf::IntRect(100, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(50, 0, 50, 50));
 	idleAni.addFrame(sf::IntRect(0, 0, 50, 50));
@@ -62,6 +63,15 @@ PlayerObject::PlayerObject()
 	aimingAni.setFrameSpeed(0.08f);
 	aimingAni.setLooping(false);
 
+	walkingAimingAni.addFrame(sf::IntRect(0, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(50, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(100, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(150, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(200, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(250, 200, 50, 50));
+	walkingAimingAni.addFrame(sf::IntRect(300, 200, 50, 50));
+	walkingAimingAni.setFrameSpeed(0.08f);
+
 	deathAni.addFrame(sf::IntRect(0, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(0, 150, 50, 50));
 	deathAni.addFrame(sf::IntRect(50, 150, 50, 50));
@@ -77,8 +87,8 @@ PlayerObject::PlayerObject()
 	setTextureRect(currentAni->getCurrentFrame());
 
 	//bow power
-	maxArrowVel = 800.0f;
-	magnitudeScale = 8.0f;
+	maxArrowVel = 770.0f;
+	magnitudeScale = 7.7f;
 
 	//initalise movement and animation variables
 	horizontalDirection = 0;
@@ -184,7 +194,7 @@ void PlayerObject::handleInput(float dt)
 
 			//aiming display
 			float magnitudePortion = magnitude / maxArrowVel;
-			magnitudePortion = (magnitudePortion * 0.7f) + 0.3f; //scale magnitudePortion into the 0.3-1 range
+			magnitudePortion = (magnitudePortion * 0.8f) + 0.2f; //scale magnitudePortion into the 0.2-1 range
 			aimingDisplay.setRotation(objectiveBowRotation);
 			aimingDisplay.setScale(magnitudePortion, magnitudePortion);
 			if (isFlipped)
@@ -264,7 +274,7 @@ void PlayerObject::render()
 		}
 		window->draw(bow);
 
-		if (isAiming)
+		if (isAiming && aimingDisplay.getPosition().y != 0)
 		{
 			window->draw(aimingDisplay);
 		}
@@ -394,7 +404,7 @@ void PlayerObject::findAndSetAnimation()
 	{
 		if (isAiming)
 		{
-			currentAni = &aimingAni; //walking aiming animation when exists
+			currentAni = &walkingAimingAni;
 		}
 		else
 		{

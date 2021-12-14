@@ -21,7 +21,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		pos.x = window->getSize().x - player.getSize().x - pos.x;
 		player.setPosition(pos);
 
-		player.loadTextureFromFile("gfx/player_1.png");
+		player.loadTextureFromFile("gfx/player_2.png");
 		player.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 	else
@@ -49,7 +49,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		pos.x = window->getSize().x - opponent.getSize().x - pos.x;
 		opponent.setPosition(pos);
 
-		opponent.loadTextureFromFile("gfx/player_1.png");
+		opponent.loadTextureFromFile("gfx/player_2.png");
 		opponent.loadBowTextureFromFile("gfx/CrossBow.png");
 	}
 
@@ -71,12 +71,12 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	towerLeftFront.setTexture(&towerLeftFrontTexture);
 	towerLeftFront.setSize(sf::Vector2f(350, 500));
 	towerLeftFront.setPosition(sf::Vector2f(0, 220));
-	towerLeftFront.setCollisionBox(0, 89, 292, 411);
+	towerLeftFront.setCollisionBox(0, 89, 288, 411);
 	towerRightFrontTexture.loadFromFile("gfx/Front_layer_tower_right.png");
 	towerRightFront.setTexture(&towerRightFrontTexture);
 	towerRightFront.setSize(sf::Vector2f(350, 500));
 	towerRightFront.setPosition(sf::Vector2f(930, 220));
-	towerRightFront.setCollisionBox(58, 89, 292, 411);
+	towerRightFront.setCollisionBox(62, 89, 288, 411);
 
 	// ground
 	groundTexture.loadFromFile("gfx/Front_grass_layer.png");
@@ -211,6 +211,9 @@ void GameLevel::render()
 
 	//draw background
 	window->draw(background);
+
+	//draw projectiles
+	projectileManager.render(window);
 	
 	//draw towers back
 	window->draw(towerLeftBack);
@@ -219,9 +222,6 @@ void GameLevel::render()
 	//draw players
 	player.render();
 	opponent.render();
-
-	//draw projectiles
-	projectileManager.render(window);
 
 	//draw towers back
 	window->draw(towerLeftFront);
