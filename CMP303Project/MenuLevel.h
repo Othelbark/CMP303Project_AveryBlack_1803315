@@ -32,5 +32,7 @@ private:
 
 	//background and transparent layer
 	sf::RectangleShape transparentOverlay;
+	sf::Texture backgroundTexture;
+	sf::RectangleShape background;
 };
 

@@ -1,10 +1,10 @@
 #pragma once
-#include "Projectile.h"
-#include "RemoteProjectile.h"
 #include "TargetObject.h"
+#include "RemoteTarget.h"
 #include "Framework/Collision.h"
 #include "Framework/AudioManager.h"
 #include <SFML\Network\Packet.hpp>
+#include "ProjectileManager.h"
 #include "ObjectState.h"
 #include <map>
 
@@ -14,43 +14,41 @@ sf::Packet& operator <<(sf::Packet& packet, const ObjectState& objectState);
 sf::Packet& operator >>(sf::Packet& packet, ObjectState& objectState);
 
 
-class ProjectileManager
+class TargetManager
 {
 public:
-	ProjectileManager();
-	~ProjectileManager();
+	TargetManager();
+	~TargetManager();
 
 	void update(float dt);
 	void updatePredictions(float currentTime);
-	void render(sf::RenderWindow* window); 
+	void render(sf::RenderWindow* window);
 
 
 	void resetRecivedDataThisUpdate();
 	void giveState(ObjectState state);
 	void getStates(sf::Packet& packet, float timeNow);
 
-	void checkMapCollisions(GameObject* mapObject);
-	void checkUnitCollisions(GameObject* object);
-	void checkTargetCollisions(TargetObject* target);
-
-	void spawnProjectile(GameObject* source, sf::Vector2f pos, sf::Vector2f vel);
+	void checkProjectileCollisions(ProjectileManager* projectileManager);
 
 
 	//getters and setters
 	void setAudio(AudioManager* aud);
+	void setPlayerP(GameObject* p) { PlayerP = p; };
 	void setOpponentP(GameObject* p) { opponentP = p; };
 
-	int getLocalProjectileCount() { return localProjectiles.size(); };
+	int getLocalTargetCount() { return localTargets.size(); };
 
 private:
 	AudioManager* audio;
 
+	GameObject* PlayerP;
 	GameObject* opponentP;
 
-	sf::Uint16 nextProjectileID;
+	sf::Uint16 nextTargetID;
 
-	std::map<sf::Uint16, Projectile*> localProjectiles;
-	std::map<sf::Uint16, RemoteProjectile*> remoteProjectiles;
-	sf::Texture projectileTexture;
+	std::map<sf::Uint16, TargetObject*> localTargets;
+	std::map<sf::Uint16, RemoteTarget*> remoteTargets;
+	sf::Texture targetTexture;
 };
 

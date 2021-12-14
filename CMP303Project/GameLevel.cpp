@@ -86,7 +86,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	ground.setCollisionBox(0, 24, 1280, 36);
 
 	// background
-	backgroundTexture.loadFromFile("gfx/Sky_backround.png");
+	backgroundTexture.loadFromFile("gfx/Backdrop.png");
 	background.setTexture(&backgroundTexture);
 	background.setSize(view.getSize());
 	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);

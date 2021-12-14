@@ -194,6 +194,53 @@ void ProjectileManager::checkUnitCollisions(GameObject* object)
 	}
 }
 
+void ProjectileManager::checkTargetCollisions(TargetObject* target)
+{
+	// for each projectile
+	for (auto pair : localProjectiles)
+	{
+		// if projectile is alive
+		if (pair.second->isAlive())
+		{
+			//if target is for the player who fired this projectile
+			if (pair.second->getSource() == target->getFor())
+			{
+				//check collision
+				if (Collision::checkBoundingBox(target, pair.second))
+				{
+					target->setAlive(false);
+					pair.second->collisionResponse(target);
+
+					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
+					audio->playSoundbyName("hitting_enemy");
+					return;
+				}
+			}
+		}
+	}
+	for (auto pair : remoteProjectiles)
+	{
+		// if projectile is alive
+		if (pair.second->isAlive())
+		{
+			//if target is for the player who fired this projectile
+			if (pair.second->getSource() == target->getFor())
+			{
+				//check collision
+				if (Collision::checkBoundingBox(target, pair.second))
+				{
+					target->setAlive(false);
+					pair.second->collisionResponse(target);
+
+					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
+					audio->playSoundbyName("hitting_enemy");
+					return;
+				}
+			}
+		}
+	}
+}
+
 void ProjectileManager::spawnProjectile(GameObject* source, sf::Vector2f pos, sf::Vector2f vel)
 {
 	//all Projectiles are alive so add a new one

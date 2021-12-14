@@ -70,6 +70,12 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	transparentOverlay.setPosition(view.getCenter());
 	transparentOverlay.setFillColor(sf::Color(30, 30, 30, 150));
 
+	backgroundTexture.loadFromFile("gfx/Title_screen.png");
+	background.setTexture(&backgroundTexture);
+	background.setSize(view.getSize());
+	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);
+	background.setPosition(view.getCenter());
+
 
 	// Load music and sound effects
 	audio->addMusic("sfx/Telegraphy_-_03_-_Stealth_Camp.ogg", "stealth");
@@ -174,7 +180,9 @@ void MenuLevel::render()
 {
 	beginDraw();
 
-	window->draw(transparentOverlay);
+	window->draw(background);
+	if(menuState == MenuState::CONTROLS)
+		window->draw(transparentOverlay);
 
 	window->draw(title);
 
