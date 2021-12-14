@@ -357,10 +357,10 @@ void GameLevel::updateGame(float dt)
 	opponent.update(dt);
 
 	projectileManager.update(dt);
-	projectileManager.checkUnitCollisions(&player);
-	projectileManager.checkMapCollisions(&ground);
-	projectileManager.checkMapCollisions(&towerLeftFront);
-	projectileManager.checkMapCollisions(&towerRightFront);
+	projectileManager.checkUnitCollision(&player);
+	projectileManager.checkMapCollision(&ground);
+	projectileManager.checkMapCollision(&towerLeftFront);
+	projectileManager.checkMapCollision(&towerRightFront);
 
 
 	if (Collision::checkBoundingBox(&player, &towerLeftFront))

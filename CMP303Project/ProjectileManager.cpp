@@ -121,7 +121,7 @@ void ProjectileManager::getStates(sf::Packet& packet, float timeNow)
 	}
 }
 
-void ProjectileManager::checkMapCollisions(GameObject* mapObject)
+void ProjectileManager::checkMapCollision(GameObject* mapObject)
 {
 
 	for (auto pair : localProjectiles)
@@ -149,7 +149,7 @@ void ProjectileManager::checkMapCollisions(GameObject* mapObject)
 	}
 }
 
-void ProjectileManager::checkUnitCollisions(GameObject* object)
+void ProjectileManager::checkUnitCollision(GameObject* object)
 {
 	// for each projectile
 	for (auto pair : localProjectiles)
@@ -194,7 +194,7 @@ void ProjectileManager::checkUnitCollisions(GameObject* object)
 	}
 }
 
-void ProjectileManager::checkTargetCollisions(TargetObject* target)
+void ProjectileManager::checkTargetCollision(TargetObject* target)
 {
 	// for each projectile
 	for (auto pair : localProjectiles)

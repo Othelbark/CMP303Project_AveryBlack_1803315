@@ -35,6 +35,12 @@ CreditsLevel::CreditsLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, Aud
 	transparentOverlay.setOrigin(view.getSize().x / 2, view.getSize().y / 2);
 	transparentOverlay.setPosition(view.getCenter());
 	transparentOverlay.setFillColor(sf::Color(30, 30, 30, 150));
+
+	backgroundTexture.loadFromFile("gfx/Backdrop.png");
+	background.setTexture(&backgroundTexture);
+	background.setSize(view.getSize());
+	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);
+	background.setPosition(view.getCenter());
 }
 
 CreditsLevel::~CreditsLevel()
@@ -65,6 +71,7 @@ void CreditsLevel::render()
 {
 	beginDraw();
 
+	window->draw(background);
 	window->draw(transparentOverlay);
 
 	window->draw(title);

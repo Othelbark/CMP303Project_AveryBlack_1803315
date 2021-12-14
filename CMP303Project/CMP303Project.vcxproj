@@ -50,6 +50,9 @@
     <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="RemoteObject.cpp" />
     <ClCompile Include="RemoteProjectile.cpp" />
+    <ClCompile Include="RemoteTarget.cpp" />
+    <ClCompile Include="TargetManager.cpp" />
+    <ClCompile Include="TargetObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CreditsLevel.h" />
@@ -77,7 +80,10 @@
     <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="RemoteObject.h" />
     <ClInclude Include="RemoteProjectile.h" />
+    <ClInclude Include="RemoteTarget.h" />
     <ClInclude Include="SafeQueue.h" />
+    <ClInclude Include="TargetManager.h" />
+    <ClInclude Include="TargetObject.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

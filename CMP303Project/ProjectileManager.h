@@ -29,9 +29,9 @@ public:
 	void giveState(ObjectState state);
 	void getStates(sf::Packet& packet, float timeNow);
 
-	void checkMapCollisions(GameObject* mapObject);
-	void checkUnitCollisions(GameObject* object);
-	void checkTargetCollisions(TargetObject* target);
+	void checkMapCollision(GameObject* mapObject);
+	void checkUnitCollision(GameObject* object);
+	void checkTargetCollision(TargetObject* target);
 
 	void spawnProjectile(GameObject* source, sf::Vector2f pos, sf::Vector2f vel);
 
