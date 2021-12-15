@@ -32,6 +32,8 @@ MinionObject::MinionObject()
 
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 	setCollisionBox(17 * tileScaleFactor, 17 * tileScaleFactor, 16 * tileScaleFactor, 33 * tileScaleFactor);
+
+	speed = 80;
 }
 
 MinionObject::~MinionObject()

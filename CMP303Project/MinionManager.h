@@ -30,18 +30,20 @@ public:
 
 	void checkProjectileCollisions(ProjectileManager* projectileManager);
 
-	void spawnMinion(GameObject* source, sf::Vector2f pos);
-
+	void spawnMinions(int count) { minionsToSpawn += count; };
 
 	//getters and setters
 	void setView(sf::View* v) { view = v; };
-	void setAudio(AudioManager* aud);
+	void setAudio(AudioManager* aud) { audio = aud; };
 
 	int getLocalMinionCount() { return localMinions.size(); };
 
 	void setSpawnRight(bool sr) { spawnRight = sr; };
 
 private:
+
+	void spawnMinion();
+
 	sf::View* view;
 	AudioManager* audio;
 
@@ -52,6 +54,9 @@ private:
 	sf::Texture minionTextureLeft;
 	sf::Texture minionTextureRight;
 
+	float spawnTimer;
+	float spawnDelay;
+	int minionsToSpawn;
 	bool spawnRight;
 };
 

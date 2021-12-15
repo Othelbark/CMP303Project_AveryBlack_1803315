@@ -5,6 +5,7 @@
 #include "Framework/Collision.h"
 #include "Framework/AudioManager.h"
 #include <SFML\Network\Packet.hpp>
+#include "MinionManager.h"
 #include "ObjectState.h"
 #include <map>
 
@@ -32,6 +33,7 @@ public:
 	void checkMapCollision(GameObject* mapObject);
 	void checkUnitCollision(GameObject* object);
 	void checkTargetCollision(TargetObject* target);
+	void checkMinionCollision(GameObject* minion);
 
 	void spawnProjectile(GameObject* source, sf::Vector2f pos, sf::Vector2f vel);
 
@@ -39,11 +41,13 @@ public:
 	//getters and setters
 	void setAudio(AudioManager* aud);
 	void setOpponentP(GameObject* p) { opponentP = p; };
+	void setMinionManager(MinionManager* mm) { minionManager = mm; };
 
 	int getLocalProjectileCount() { return localProjectiles.size(); };
 
 private:
 	AudioManager* audio;
+	MinionManager* minionManager;
 
 	GameObject* opponentP;
 

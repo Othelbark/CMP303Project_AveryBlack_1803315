@@ -211,7 +211,7 @@ void ProjectileManager::checkTargetCollision(TargetObject* target)
 					target->collisionResponse(pair.second);
 					pair.second->collisionResponse(target);
 
-					//TODO: hit a local target spawn minions here//
+					minionManager->spawnMinions(2);
 
 					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
 					audio->playSoundbyName("hitting_enemy");
@@ -239,6 +239,44 @@ void ProjectileManager::checkTargetCollision(TargetObject* target)
 					audio->playSoundbyName("hitting_enemy");
 					return;
 				}
+			}
+		}
+	}
+}
+
+void ProjectileManager::checkMinionCollision(GameObject* minion)
+{
+	// for each projectile
+	for (auto pair : localProjectiles)
+	{
+		// if projectile is alive
+		if (pair.second->isAlive())
+		{
+			//check collision
+			if (Collision::checkBoundingBox(minion, pair.second))
+			{
+				minion->collisionResponse(pair.second);
+				pair.second->collisionResponse(minion);
+
+				return;
+			}
+
+		}
+	}
+	// for each projectile
+	for (auto pair : remoteProjectiles)
+	{
+		// if projectile is alive
+		if (pair.second->isAlive())
+		{
+			//check collision
+			if (Collision::checkBoundingBox(minion, pair.second))
+			{
+				minion->collisionResponse(pair.second);
+				pair.second->collisionResponse(minion);
+
+				return;
+
 			}
 		}
 	}

@@ -19,7 +19,7 @@ TargetManager::TargetManager()
 
 TargetManager::~TargetManager()
 {
-	// for each projectile
+	// for each target
 	for (auto pair : localTargets)
 	{
 		delete(pair.second);
@@ -58,7 +58,7 @@ void TargetManager::update(float dt)
 	}
 
 
-	// for each projectile
+	// for each target
 	for (auto it = localTargets.begin(), next_it = it; it != localTargets.end(); it = next_it)
 	{
 		++next_it;
@@ -92,7 +92,7 @@ void TargetManager::updatePredictions(float currentTime)
 
 void TargetManager::render(sf::RenderWindow* window)
 {
-	// for each projectile
+	// for each target
 	for (auto pair : localTargets)
 	{
 		window->draw(*pair.second);
@@ -115,7 +115,7 @@ void TargetManager::giveState(ObjectState state)
 {
 
 	sf::Uint16 ID = state.ID;
-	if (remoteTargets.find(ID) == remoteTargets.end()) //if projectile does not already exist
+	if (remoteTargets.find(ID) == remoteTargets.end()) //if target does not already exist
 	{
 		RemoteTarget* newTarget = new RemoteTarget;
 		newTarget->setAlive(true);
@@ -160,7 +160,7 @@ void TargetManager::getStates(sf::Packet& packet, float timeNow)
 
 void TargetManager::checkProjectileCollisions(ProjectileManager* projectileManager)
 {
-	// for each projectile
+	// for each target
 	for (auto pair : localTargets)
 	{
 		projectileManager->checkTargetCollision(pair.second);

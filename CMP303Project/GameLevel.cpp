@@ -55,6 +55,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 
 	projectileManager.setOpponentP(&opponent);
 	projectileManager.setAudio(aud);
+	projectileManager.setMinionManager(&minionManager);
 
 	targetManager.setOpponentP(&opponent);
 	targetManager.setPlayerP(&player);
