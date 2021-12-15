@@ -14,7 +14,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	player.setProjectileManager(&projectileManager);
 	player.setAlive(true);
 	player.setView(&view);
-	player.setPosition(0, 0);
+	player.setPosition(0, 250);
 	if (ns->getCurrentState() == NState::CONNECTED) //not host
 	{
 		sf::Vector2f pos = player.getPosition();
@@ -37,7 +37,7 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	opponent.setAudio(aud);
 	opponent.setAlive(true);
 	opponent.setView(&view);
-	opponent.setPosition(0, 0);
+	opponent.setPosition(0, 250);
 	if (ns->getCurrentState() == NState::CONNECTED) //not host
 	{
 		opponent.loadTextureFromFile("gfx/player_1.png");
@@ -64,6 +64,13 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 		targetManager.setSpawnRight(false);
 	else
 		targetManager.setSpawnRight(true);
+
+	minionManager.setAudio(aud);
+	minionManager.setView(&view);
+	if (ns->getCurrentState() == NState::CONNECTED) //not host
+		minionManager.setSpawnRight(true);
+	else
+		minionManager.setSpawnRight(false);
 
 	// towers back
 	towerLeftBackTexture.loadFromFile("gfx/Back_layer_tower_left.png");
@@ -211,6 +218,7 @@ void GameLevel::updatePredictions(float currentTime)
 {
 	opponent.updatePrediction(currentTime);
 	projectileManager.updatePredictions(currentTime);
+	targetManager.updatePredictions(currentTime);
 }
 
 // Render level
@@ -230,6 +238,9 @@ void GameLevel::render()
 	//draw towers back
 	window->draw(towerLeftBack);
 	window->draw(towerRightBack);
+
+	//draw minions
+	minionManager.render(window);
 
 	//draw players
 	player.render();
@@ -252,6 +263,7 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 {
 	projectileManager.resetRecivedDataThisUpdate();
 	targetManager.resetRecivedDataThisUpdate();
+	minionManager.resetRecivedDataThisUpdate();
 
 	sf::Uint8 statesCount = 0;
 	statesPacket >> statesCount;
@@ -274,6 +286,10 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 		{
 			targetManager.giveState(state);
 		}
+		else if ((state.ID & MINION_ID_MASK) == MINION_ID_MASK)
+		{
+			minionManager.giveState(state);
+		}
 	}
 }
 
@@ -282,7 +298,7 @@ sf::Packet GameLevel::getStates(float timeNow)
 	sf::Packet statesPacket;
 	statesPacket << GAMEOBJECT_STATES_PACKET << GAMEOBJECT_STATES_PACKET;
 
-	sf::Uint8 statesCount = 1 + projectileManager.getLocalProjectileCount() + targetManager.getLocalTargetCount();
+	sf::Uint8 statesCount = 1 + projectileManager.getLocalProjectileCount() + targetManager.getLocalTargetCount() + minionManager.getLocalMinionCount();
 	statesPacket << statesCount;
 
 	//add player
@@ -300,6 +316,7 @@ sf::Packet GameLevel::getStates(float timeNow)
 
 	projectileManager.getStates(statesPacket, timeNow);
 	targetManager.getStates(statesPacket, timeNow);
+	minionManager.getStates(statesPacket, timeNow);
 
 	return statesPacket;
 }
@@ -382,6 +399,9 @@ void GameLevel::updateGame(float dt)
 
 	targetManager.update(dt);
 	targetManager.checkProjectileCollisions(&projectileManager);
+
+	minionManager.update(dt);
+	minionManager.checkProjectileCollisions(&projectileManager);
 
 	if (Collision::checkBoundingBox(&player, &towerLeftFront))
 	{

@@ -53,7 +53,7 @@ void TargetManager::update(float dt)
 				pos = sf::Vector2f(randX + 310.0f, randY + 350.0f);
 			}
 			spawnTarget(playerP, pos);
-			spawnTimer = 2.5f;
+			spawnTimer = 2.0f;
 		}
 	}
 

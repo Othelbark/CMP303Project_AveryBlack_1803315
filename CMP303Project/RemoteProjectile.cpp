@@ -1,6 +1,5 @@
 #pragma once
 #include "RemoteProjectile.h"
-#include "Framework\Vector.h"
 
 RemoteProjectile::RemoteProjectile()
 {
@@ -21,7 +20,7 @@ void RemoteProjectile::update(float dt)
 
 		velocity = (newPosition - getPosition()) / dt;
 
-		setPosition(getCurrentPrediction().pos);
+		setPosition(newPosition);
 
 		setRotation(getCurrentPrediction().rotation);
 	}

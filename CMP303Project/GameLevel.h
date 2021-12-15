@@ -6,6 +6,7 @@
 #include "OpponetObject.h"
 #include "ProjectileManager.h"
 #include "TargetManager.h"
+#include "MinionManager.h"
 
 #include <vector>
 #include <SFML\Network\Packet.hpp>
@@ -66,6 +67,7 @@ protected:
 
 	ProjectileManager projectileManager;
 	TargetManager targetManager;
+	MinionManager minionManager;
 
 	// Towers back
 	sf::Texture towerLeftBackTexture;

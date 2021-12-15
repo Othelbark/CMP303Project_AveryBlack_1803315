@@ -23,7 +23,7 @@ void OpponetObject::update(float dt)
 
 		velocity = (newPosition - getPosition()) / dt;
 
-		setPosition(getCurrentPrediction().pos);
+		setPosition(newPosition);
 
 		setAlive(getCurrentPrediction().alive);
 

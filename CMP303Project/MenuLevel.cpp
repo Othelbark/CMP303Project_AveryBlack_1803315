@@ -20,7 +20,7 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	controlsText.setFont(font);
 	controlsText.setCharacterSize(24);
 	controlsText.setFillColor(sf::Color::White);
-	controlsText.setString("Use ImGUI interface to host or connect to a game,\npress space to toggle ImGUI in-game.\n\nUse A and D to move left and right.\nTo aim your crossbow click and hold on your character\nand drag in the inverse direction, release to fire.\n\nESC to pause.");
+	controlsText.setString("Use the ImGUI interface to host or connect to a game,\npress space to toggle ImGUI in-game.\nUse A and D to move left and right.\nTo aim your crossbow click and hold on your character\nand drag in the inverse direction, release to fire.\n\nHit the targets that spawn in front of your opponents\ntower to spawn minions.\nTo win either hit your opponent with an arrow or\noverwhelm their tower with minions.\n\nPress ESC to open the menu in-game.");
 	controlsText.setPosition(view.getCenter().x - (controlsText.getLocalBounds().width / 2), 192);
 
 

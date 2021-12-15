@@ -1,16 +1,18 @@
-#include "RemoteTarget.h"
+#include "RemoteMinion.h"
 
-RemoteTarget::RemoteTarget()
+
+RemoteMinion::RemoteMinion()
 {
-	predictionType = PredictionType::NONE;
+	predictionType = PredictionType::LINEAR;
 }
 
-RemoteTarget::~RemoteTarget()
+RemoteMinion::~RemoteMinion()
 {
 }
 
-void RemoteTarget::update(float dt)
+void RemoteMinion::update(float dt)
 {
+
 	//update position from preditions
 	if (recivedAnyData && isAlive())
 	{
