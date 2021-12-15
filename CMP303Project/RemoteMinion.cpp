@@ -23,9 +23,16 @@ void RemoteMinion::update(float dt)
 		setPosition(newPosition);
 
 		setRotation(getCurrentPrediction().rotation);
+
+		if (!getCurrentPrediction().alive)
+		{
+			currentAnimation = &deathAni;
+			alive = false;
+		}
 	}
 
 	//animate
 	currentAnimation->animate(dt);
 	setTextureRect(currentAnimation->getCurrentFrame());
 }
+

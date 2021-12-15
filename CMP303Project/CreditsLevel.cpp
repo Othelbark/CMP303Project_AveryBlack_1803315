@@ -16,7 +16,11 @@ CreditsLevel::CreditsLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, Aud
 	info.setFont(font);
 	info.setCharacterSize(24);
 	info.setFillColor(sf::Color::White);
-	info.setString("A game by Avery Black\n\nArt by Siobhán.B");
+	info.setString("A game by Avery Black\n\nArt by Siobhán.B\n\n"
+		"Music: Stealth Camp by Telegraphy, obtained from\n"
+		"freemusicarchive.org/music/Telegraphy/Requiem/Stealth_Camp,\n"
+		"used under a Attribution-NonCommercial license.\n\n"
+		"Sound effects obtained from freesound.org, all under a CC0 license.");
 	info.setPosition(view.getCenter().x - (info.getLocalBounds().width / 2), 192);
 
 	buttonTexture.loadFromFile("gfx/Button.png");
@@ -36,7 +40,7 @@ CreditsLevel::CreditsLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, Aud
 	transparentOverlay.setPosition(view.getCenter());
 	transparentOverlay.setFillColor(sf::Color(30, 30, 30, 150));
 
-	backgroundTexture.loadFromFile("gfx/Backdrop.png");
+	backgroundTexture.loadFromFile("gfx/Congratulations.png");
 	background.setTexture(&backgroundTexture);
 	background.setSize(view.getSize());
 	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);

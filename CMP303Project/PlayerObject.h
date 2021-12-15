@@ -27,7 +27,7 @@ public:
 	void setAudio(AudioManager* aud) { audio = aud; };
 	void setProjectileManager(ProjectileManager* proMan) { projectileManager = proMan; };
 
-	void setTileScaleFactor(int sF) { tileScaleFactor = sF; };
+	void setTileScaleFactor(float sF) { tileScaleFactor = sF; };
 
 	void loadTextureFromFile(std::string filename) { texture.loadFromFile(filename); setTexture(&texture); };
 	void loadBowTextureFromFile(std::string filename) { bowTexture.loadFromFile(filename); bow.setTexture(&bowTexture); };
@@ -57,7 +57,7 @@ protected:
 	sf::Vector2f gravity;
 
 	//scale factor
-	int tileScaleFactor;
+	float tileScaleFactor;
 
 	//anitmations
 	Animation* currentAni;

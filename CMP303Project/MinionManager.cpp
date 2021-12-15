@@ -73,6 +73,21 @@ void MinionManager::update(float dt)
 			remoteMinions.erase(it);
 		}
 	}
+
+	// minion - minion collisions
+	for (auto localMPair : localMinions)
+	{
+		for (auto remoteMPair : remoteMinions)
+		{
+			//check collision
+			if (Collision::checkBoundingBox(localMPair.second, remoteMPair.second))
+			{
+				localMPair.second->collisionResponse(remoteMPair.second);
+				remoteMPair.second->collisionResponse(localMPair.second);
+
+			}
+		}
+	}
 }
 
 void MinionManager::updatePredictions(float currentTime)
@@ -111,21 +126,27 @@ void MinionManager::giveState(ObjectState state)
 	sf::Uint16 ID = state.ID;
 	if (remoteMinions.find(ID) == remoteMinions.end()) //if target does not already exist
 	{
-		RemoteMinion* newProjectile = new RemoteMinion;
-		newProjectile->setAlive(true);
-		newProjectile->setPosition(state.x, state.y);
+		RemoteMinion* newMinion = new RemoteMinion;
+		newMinion->setAlive(true);
+		newMinion->setPosition(state.x, state.y);
 		if (spawnRight)
-			newProjectile->setTexture(&minionTextureLeft);
+		{
+			newMinion->setFlipped(false);
+			newMinion->setTexture(&minionTextureLeft);
+		}
 		else
-			newProjectile->setTexture(&minionTextureRight);
-		newProjectile->setID(ID);
+		{
+			newMinion->setFlipped(true);
+			newMinion->setTexture(&minionTextureRight);
+		}
+		newMinion->setID(ID);
 
 		if (audio != nullptr)
 		{
-			newProjectile->setAudio(audio);
+			newMinion->setAudio(audio);
 		}
 
-		remoteMinions.emplace(ID, newProjectile);
+		remoteMinions.emplace(ID, newMinion);
 	}
 	remoteMinions[ID]->addState(state);
 }
@@ -146,14 +167,29 @@ void MinionManager::getStates(sf::Packet& packet, float timeNow)
 	}
 }
 
+int MinionManager::checkBaseCollisions(GameObject* baseObject)
+{
+	int numberOfBaseCollisions = 0;
+	//check enemy collisions with your base
+	for (auto pair : remoteMinions) 
+	{
+		if (pair.second->isAlive())
+		{
+			//check collision
+			if (Collision::checkBoundingBox(baseObject, pair.second))
+			{
+				pair.second->collisionResponse(baseObject);
+				numberOfBaseCollisions++;
+			}
+		}
+	}
+	return numberOfBaseCollisions;
+}
+
 void MinionManager::checkProjectileCollisions(ProjectileManager* projectileManager)
 {
 	// for each minion
 	for (auto pair : localMinions)
-	{
-		projectileManager->checkMinionCollision(pair.second);
-	}
-	for (auto pair : remoteMinions)
 	{
 		projectileManager->checkMinionCollision(pair.second);
 	}

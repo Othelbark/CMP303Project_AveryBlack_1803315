@@ -10,5 +10,7 @@ public:
     ~RemoteMinion();
 
     void update(float dt) override;
+
+protected:
 };
 

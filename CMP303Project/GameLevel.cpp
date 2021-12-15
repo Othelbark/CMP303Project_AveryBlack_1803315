@@ -55,12 +55,12 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 
 	projectileManager.setOpponentP(&opponent);
 	projectileManager.setAudio(aud);
-	projectileManager.setMinionManager(&minionManager);
 
 	targetManager.setOpponentP(&opponent);
 	targetManager.setPlayerP(&player);
 	targetManager.setAudio(aud);
 	targetManager.setView(&view);
+	targetManager.setMinionManager(&minionManager);
 	if (ns->getCurrentState() == NState::CONNECTED) //not host
 		targetManager.setSpawnRight(false);
 	else
@@ -157,6 +157,8 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 
 	//play music
 	audio->playMusicbyName("stealth");
+
+	baseHealth = 3;
 }
 
 GameLevel::~GameLevel()
@@ -220,6 +222,7 @@ void GameLevel::updatePredictions(float currentTime)
 	opponent.updatePrediction(currentTime);
 	projectileManager.updatePredictions(currentTime);
 	targetManager.updatePredictions(currentTime);
+	minionManager.updatePredictions(currentTime);
 }
 
 // Render level
@@ -229,16 +232,16 @@ void GameLevel::render()
 
 	//draw background
 	window->draw(background);
+	
+	//draw towers back
+	window->draw(towerLeftBack);
+	window->draw(towerRightBack);
 
 	//draw projectiles
 	projectileManager.render(window);
 
 	//draw targets
 	targetManager.render(window);
-	
-	//draw towers back
-	window->draw(towerLeftBack);
-	window->draw(towerRightBack);
 
 	//draw minions
 	minionManager.render(window);
@@ -394,9 +397,9 @@ void GameLevel::updateGame(float dt)
 
 	projectileManager.update(dt);
 	projectileManager.checkUnitCollision(&player);
-	projectileManager.checkMapCollision(&ground);
-	projectileManager.checkMapCollision(&towerLeftFront);
-	projectileManager.checkMapCollision(&towerRightFront);
+	projectileManager.checkBaseCollisions(&ground);
+	projectileManager.checkBaseCollisions(&towerLeftFront);
+	projectileManager.checkBaseCollisions(&towerRightFront);
 
 	targetManager.update(dt);
 	targetManager.checkProjectileCollisions(&projectileManager);

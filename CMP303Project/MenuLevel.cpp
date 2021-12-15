@@ -14,13 +14,22 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	title.setFont(font);
 	title.setCharacterSize(64);
 	title.setFillColor(sf::Color::White);
-	title.setString("Safe Distance");
+	title.setString("");
 	title.setPosition(view.getCenter().x - (title.getLocalBounds().width / 2), 64);
 
 	controlsText.setFont(font);
 	controlsText.setCharacterSize(24);
 	controlsText.setFillColor(sf::Color::White);
-	controlsText.setString("Use the ImGUI interface to host or connect to a game,\npress space to toggle ImGUI in-game.\nUse A and D to move left and right.\nTo aim your crossbow click and hold on your character\nand drag in the inverse direction, release to fire.\n\nHit the targets that spawn in front of your opponents\ntower to spawn minions.\nTo win either hit your opponent with an arrow or\noverwhelm their tower with minions.\n\nPress ESC to open the menu in-game.");
+	controlsText.setString("Use the ImGUI interface to host or connect to a game,\n"
+		"press space to toggle ImGUI in-game.\n"
+		"Use A and D to move left and right.\n"
+		"To aim your crossbow click and hold on your character\n"
+		"and drag in the inverse direction, release to fire.\n\n"
+		"Hit the targets that spawn in front of your opponents\n"
+		"tower to spawn minions.\n"
+		"To win either hit your opponent with an arrow or\n"
+		"overwhelm their tower with minions.\n\n"
+		"Press ESC to open the menu in-game.");
 	controlsText.setPosition(view.getCenter().x - (controlsText.getLocalBounds().width / 2), 192);
 
 
@@ -70,8 +79,9 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	transparentOverlay.setPosition(view.getCenter());
 	transparentOverlay.setFillColor(sf::Color(30, 30, 30, 150));
 
-	backgroundTexture.loadFromFile("gfx/Title_screen.png");
-	background.setTexture(&backgroundTexture);
+	backgroundTexture.loadFromFile("gfx/Title_screen.png"); 
+	backgroundTextureWithTitle.loadFromFile("gfx/Title_screen_w_Words.png");
+	background.setTexture(&backgroundTextureWithTitle);
 	background.setSize(view.getSize());
 	background.setOrigin(view.getSize().x / 2, view.getSize().y / 2);
 	background.setPosition(view.getCenter());
@@ -150,6 +160,7 @@ void MenuLevel::update(float dt)
 
 			title.setString("Controls");
 			title.setPosition(view.getCenter().x - (title.getLocalBounds().width / 2), 64);
+			background.setTexture(&backgroundTexture);
 
 			menuState = MenuState::CONTROLS;
 		}
@@ -165,8 +176,9 @@ void MenuLevel::update(float dt)
 		{
 			menuButton.setClicked(false);
 
-			title.setString("Safe Distance");
+			title.setString("");
 			title.setPosition(view.getCenter().x - (title.getLocalBounds().width / 2), 64);
+			background.setTexture(&backgroundTextureWithTitle);
 
 			menuState = MenuState::MAIN;
 		}

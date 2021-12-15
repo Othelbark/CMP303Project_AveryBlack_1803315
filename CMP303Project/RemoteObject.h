@@ -25,9 +25,9 @@ public:
 protected:
 	void addPrediction(const LocalObjectState& pre);
 
-	void justInterpolate(float gameTime);
-	void predictLinear(float gameTime);
-	void predictQuadratic(float gameTime);
+	virtual void justInterpolate(float gameTime);
+	virtual void predictLinear(float gameTime);
+	virtual void predictQuadratic(float gameTime);
 
 	float fixRelativeRotation(float r);
 

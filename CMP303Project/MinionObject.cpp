@@ -12,18 +12,25 @@ MinionObject::MinionObject()
 	animation.addFrame(sf::IntRect(200, 0, 50, 50));
 	animation.addFrame(sf::IntRect(250, 0, 50, 50));
 	animation.addFrame(sf::IntRect(300, 0, 50, 50));
-	animation.setFrameSpeed(0.8f);
+	animation.setFrameSpeed(0.08f);
 
 	deathAni.addFrame(sf::IntRect(0, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(50, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(100, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(100, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(150, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(200, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(200, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(250, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(300, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
+	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
 	deathAni.setLooping(false);
-	deathAni.setFrameSpeed(0.05f);
+	deathAni.setFrameSpeed(0.06f);
 
 	currentAnimation = &animation;
 	setTextureRect(currentAnimation->getCurrentFrame());
@@ -42,11 +49,13 @@ MinionObject::~MinionObject()
 
 void MinionObject::update(float dt)
 {
-	velocity.x = horizontalDirection * speed;
+	if (isAlive())
+	{
+		velocity.x = horizontalDirection * speed;
 
-	sf::Vector2f step = velocity * dt;
-	setPosition(getPosition() + step);
-
+		sf::Vector2f step = velocity * dt;
+		setPosition(getPosition() + step);
+	}
 
 	//animate
 	currentAnimation->animate(dt);

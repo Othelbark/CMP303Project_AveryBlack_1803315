@@ -5,6 +5,7 @@
 #include "Framework/AudioManager.h"
 #include <SFML\Network\Packet.hpp>
 #include "ProjectileManager.h"
+#include "MinionManager.h"
 #include "ObjectState.h"
 #include <map>
 
@@ -36,6 +37,7 @@ public:
 	//getters and setters
 	void setView(sf::View* v) { view = v; };
 	void setAudio(AudioManager* aud);
+	void setMinionManager(MinionManager* mm) { minionManager = mm; };
 	void setPlayerP(GameObject* p) { playerP = p; };
 	void setOpponentP(GameObject* p) { opponentP = p; };
 
@@ -46,6 +48,7 @@ public:
 private:
 	sf::View* view;
 	AudioManager* audio;
+	MinionManager* minionManager;
 
 	GameObject* playerP;
 	GameObject* opponentP;

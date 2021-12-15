@@ -101,4 +101,6 @@ protected:
 	Button resumeButton;
 	Button continueButton;
 	Button quitButton;
+
+	int baseHealth;
 };

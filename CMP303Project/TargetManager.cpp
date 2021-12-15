@@ -163,7 +163,10 @@ void TargetManager::checkProjectileCollisions(ProjectileManager* projectileManag
 	// for each target
 	for (auto pair : localTargets)
 	{
-		projectileManager->checkTargetCollision(pair.second);
+		if (projectileManager->checkTargetCollision(pair.second))
+		{
+			minionManager->spawnMinions(2); //spawn two minions if local target collision detected
+		}
 	}
 	for (auto pair : remoteTargets)
 	{

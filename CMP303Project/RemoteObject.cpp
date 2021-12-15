@@ -116,7 +116,7 @@ void RemoteObject::justInterpolate(float gameTime)
 	float interpolatedRotation = rotationAtLastData + (lerpFactor * (rotationDifference));
 
 
-	//fix for remote crossbow rotation
+	//fix for remote crossbow targetRotation
 	if (targetRotation == 0)
 	{
 		interpolatedRotation = 0;
@@ -143,20 +143,20 @@ void RemoteObject::predictLinear(float gameTime)
 	float timeSinceLastStateGenerated = gameTime - state0.time;
 
 	sf::Vector2f velocity = (state0.pos - state1.pos) / (state0.time - state1.time);
-	float rotationDifference = state0.rotation - state1.rotation;
-	if (abs(rotationDifference) > 180.0f)
-		rotationDifference = fixRelativeRotation(rotationDifference);
-	float rotationalVelocity = rotationDifference / (state0.time - state1.time);
+	float rotationDifference0 = state0.rotation - state1.rotation;
+	if (abs(rotationDifference0) > 180.0f)
+		rotationDifference0 = fixRelativeRotation(rotationDifference0);
+	float rotationalVelocity = rotationDifference0 / (state0.time - state1.time);
 
-	sf::Vector2f position = state0.pos + (velocity * timeSinceLastStateGenerated);
-	float rotation = state0.rotation + (rotationalVelocity * timeSinceLastStateGenerated);
+	sf::Vector2f targetPosition = state0.pos + (velocity * timeSinceLastStateGenerated);
+	float targetRotation = state0.rotation + (rotationalVelocity * timeSinceLastStateGenerated);
 	
 
 	const int predictionCount = predictedStates.size();
 	if (predictionCount < 2) //if there are not enough predictions to make a prediction fromm predictions
 	{
-		prediction.pos = position;
-		prediction.rotation = rotation;
+		prediction.pos = targetPosition;
+		prediction.rotation = targetRotation;
 		prediction.alive = state0.alive;
 		addPrediction(prediction);
 		return;
@@ -178,12 +178,16 @@ void RemoteObject::predictLinear(float gameTime)
 	sf::Vector2f positionFP = pre0.pos + (velocityFP * timeSinceLastPrediction);
 	float rotationFP = pre0.rotation + (rotationalVelocityFP * timeSinceLastPrediction);
 
+	//correct for rotations over the angle value looping boudry
+	float rotationDifference = targetRotation - rotationFP;
+	if (abs(rotationDifference) > 180.0f)
+		rotationDifference = fixRelativeRotation(rotationDifference);
 
 	//Interpolate
 	float lerpFactor = std::min(1.0f, (gameTime - latestPredictionAtLastUpdate.time) * tickrate);
 
-	sf::Vector2f interpolatedPosition = positionFP + (lerpFactor * (position - positionFP));
-	float interpolatedRotation = rotation + (lerpFactor * (rotation - rotationFP));
+	sf::Vector2f interpolatedPosition = positionFP + (lerpFactor * (targetPosition - positionFP));
+	float interpolatedRotation = rotationFP + (lerpFactor * (rotationDifference));
 
 
 	prediction.pos = interpolatedPosition;

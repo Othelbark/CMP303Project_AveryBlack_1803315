@@ -22,7 +22,7 @@ TargetObject::TargetObject()
 	currentAnimation = &animation;
 	setTextureRect(currentAnimation->getCurrentFrame());
 
-	float tileScaleFactor = 1.0f;
+	float tileScaleFactor = 1.5f;
 
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
 	setOrigin(getSize().x / 2.0f, getSize().y / 2.0f);

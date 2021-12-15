@@ -56,7 +56,7 @@ PlayerObject::PlayerObject()
 	walkingAni.addFrame(sf::IntRect(200, 50, 50, 50));
 	walkingAni.addFrame(sf::IntRect(250, 50, 50, 50));
 	walkingAni.addFrame(sf::IntRect(300, 50, 50, 50));
-	walkingAni.setFrameSpeed(0.08f);
+	walkingAni.setFrameSpeed(0.075f);
 
 	aimingAni.addFrame(sf::IntRect(0, 100, 50, 50));
 	aimingAni.addFrame(sf::IntRect(50, 100, 50, 50));
@@ -97,7 +97,7 @@ PlayerObject::PlayerObject()
 	isFlipped = false;
 
 	maxStep = 7.0f;
-	speed = 100;
+	speed = 120;
 
 	setAlive(true);
 }
