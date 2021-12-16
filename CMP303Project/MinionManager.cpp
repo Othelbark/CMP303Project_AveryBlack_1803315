@@ -185,6 +185,8 @@ int MinionManager::checkOurBaseCollisions(GameObject* baseObject)
 			{
 				pair.second->collisionResponse(baseObject);
 				numberOfBaseCollisions++;
+
+				audio->playSoundbyName("ting");
 			}
 		}
 	}
