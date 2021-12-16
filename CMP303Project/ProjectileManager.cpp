@@ -121,7 +121,7 @@ void ProjectileManager::getStates(sf::Packet& packet, float timeNow)
 	}
 }
 
-void ProjectileManager::checkBaseCollisions(GameObject* mapObject)
+void ProjectileManager::checkMapCollisions(GameObject* mapObject)
 {
 
 	for (auto pair : localProjectiles)

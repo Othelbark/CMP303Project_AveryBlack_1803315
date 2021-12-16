@@ -97,6 +97,8 @@ protected:
 	sf::Texture leftBaseHealthTexture;
 	sf::RectangleShape rightBaseHealthDisplay;
 	sf::Texture rightBaseHealthTexture;
+	sf::RectangleShape* otherBaseHealthDisplay;
+	sf::RectangleShape* thisBaseHealthDisplay;
 
 	sf::Font font;
 	sf::Text pauseScreenText;

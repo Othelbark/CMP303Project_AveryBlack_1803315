@@ -28,7 +28,8 @@ public:
 	void giveState(ObjectState state);
 	void getStates(sf::Packet& packet, float timeNow);
 
-	int checkBaseCollisions(GameObject* baseObject);
+	int checkOurBaseCollisions(GameObject* baseObject);
+	void checkTheirBaseCollisions(GameObject* baseObject);
 	void checkProjectileCollisions(ProjectileManager* projectileManager);
 
 	void spawnMinions(int count) { minionsToSpawn += count; };

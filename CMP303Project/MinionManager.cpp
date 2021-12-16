@@ -44,12 +44,9 @@ void MinionManager::update(float dt)
 			spawnTimer = spawnDelay;
 		}
 	}
-	else //keep decrementing spawnTimer even when nothing to spawn
+	else
 	{
-		if (spawnTimer > 0)
-		{
-			spawnTimer -= dt;
-		}
+		spawnTimer = 0;
 	}
 
 	// for each minion
@@ -77,14 +74,20 @@ void MinionManager::update(float dt)
 	// minion - minion collisions
 	for (auto localMPair : localMinions)
 	{
-		for (auto remoteMPair : remoteMinions)
+		if (localMPair.second->isAlive())
 		{
-			//check collision
-			if (Collision::checkBoundingBox(localMPair.second, remoteMPair.second))
+			for (auto remoteMPair : remoteMinions)
 			{
-				localMPair.second->collisionResponse(remoteMPair.second);
-				remoteMPair.second->collisionResponse(localMPair.second);
+				if (remoteMPair.second->isAlive())
+				{
+					//check collision
+					if (Collision::checkBoundingBox(localMPair.second, remoteMPair.second))
+					{
+						localMPair.second->collisionResponse(remoteMPair.second);
+						remoteMPair.second->collisionResponse(localMPair.second);
 
+					}
+				}
 			}
 		}
 	}
@@ -167,7 +170,7 @@ void MinionManager::getStates(sf::Packet& packet, float timeNow)
 	}
 }
 
-int MinionManager::checkBaseCollisions(GameObject* baseObject)
+int MinionManager::checkOurBaseCollisions(GameObject* baseObject)
 {
 	int numberOfBaseCollisions = 0;
 	//check enemy collisions with your base
@@ -184,6 +187,22 @@ int MinionManager::checkBaseCollisions(GameObject* baseObject)
 		}
 	}
 	return numberOfBaseCollisions;
+}
+
+void MinionManager::checkTheirBaseCollisions(GameObject* baseObject)
+{
+	//check your minions collisions with their base
+	for (auto pair : localMinions)
+	{
+		if (pair.second->isAlive())
+		{
+			//check collision
+			if (Collision::checkBoundingBox(baseObject, pair.second))
+			{
+				pair.second->collisionResponse(baseObject);
+			}
+		}
+	}
 }
 
 void MinionManager::checkProjectileCollisions(ProjectileManager* projectileManager)

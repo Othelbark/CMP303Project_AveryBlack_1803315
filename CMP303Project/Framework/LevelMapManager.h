@@ -10,7 +10,7 @@ public:
 	~LevelMapManager();
 
 	void drawMap(sf::RenderWindow* window);
-	void checkBaseCollisions(GameObject* object);
+	void checkOurBaseCollisions(GameObject* object);
 
 	// Level initalisation functions
 	void loadLevelMap();

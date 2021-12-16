@@ -129,6 +129,17 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	rightBaseHealthDisplay.setTexture(&rightBaseHealthTexture);
 	rightBaseHealthDisplay.setTextureRect(sf::IntRect(0, 0, 150, 55));
 
+	if (ns->getCurrentState() == NState::CONNECTED) //not host
+	{
+		otherBaseHealthDisplay = &leftBaseHealthDisplay;
+		thisBaseHealthDisplay = &rightBaseHealthDisplay;
+	}
+	else
+	{
+		otherBaseHealthDisplay = &rightBaseHealthDisplay;
+		thisBaseHealthDisplay = &leftBaseHealthDisplay;
+	}
+
 
 	if (!font.loadFromFile("font/arial.ttf"))
 	{
@@ -314,12 +325,6 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 	sf::Uint8 otherBaseHealth;
 	statesPacket >> otherBaseHealth;
 
-	sf::RectangleShape* otherBaseHealthDisplay;
-	if (networkState->getCurrentState() == NState::CONNECTED) //not host
-		otherBaseHealthDisplay = &leftBaseHealthDisplay;
-	else
-		otherBaseHealthDisplay = &rightBaseHealthDisplay;
-
 	if (otherBaseHealth == 3)
 		otherBaseHealthDisplay->setTextureRect(sf::IntRect(0, 0, 150, 55));
 	else if (otherBaseHealth == 2)
@@ -432,25 +437,26 @@ void GameLevel::updateGame(float dt)
 
 	projectileManager.update(dt);
 	projectileManager.checkUnitCollision(&player);
-	projectileManager.checkBaseCollisions(&ground);
-	projectileManager.checkBaseCollisions(&towerLeftFront);
-	projectileManager.checkBaseCollisions(&towerRightFront);
+	projectileManager.checkMapCollisions(&ground);
+	projectileManager.checkMapCollisions(&towerLeftFront);
+	projectileManager.checkMapCollisions(&towerRightFront);
 
 	targetManager.update(dt);
 	targetManager.checkProjectileCollisions(&projectileManager);
 
 	minionManager.update(dt);
 	minionManager.checkProjectileCollisions(&projectileManager);
-	if (networkState->getCurrentState() == NState::CONNECTED) //not host
-		baseHealth -= minionManager.checkBaseCollisions(&towerRightBack);
-	else
-		baseHealth -= minionManager.checkBaseCollisions(&towerLeftBack);
 
-	sf::RectangleShape* thisBaseHealthDisplay;
 	if (networkState->getCurrentState() == NState::CONNECTED) //not host
-		thisBaseHealthDisplay = &rightBaseHealthDisplay;
+	{
+		minionManager.checkTheirBaseCollisions(&towerLeftBack);
+		baseHealth -= minionManager.checkOurBaseCollisions(&towerRightBack);
+	}
 	else
-		thisBaseHealthDisplay = &leftBaseHealthDisplay;
+	{
+		minionManager.checkTheirBaseCollisions(&towerRightBack);
+		baseHealth -= minionManager.checkOurBaseCollisions(&towerLeftBack);
+	}
 
 	if (baseHealth == 3)
 		thisBaseHealthDisplay->setTextureRect(sf::IntRect(0, 0, 150, 55));
