@@ -20,6 +20,8 @@ void RemoteTarget::update(float dt)
 
 		setPosition(newPosition);
 
+		setAlive(getCurrentPrediction().alive);
+
 		setRotation(getCurrentPrediction().rotation);
 	}
 
