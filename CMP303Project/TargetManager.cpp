@@ -46,11 +46,11 @@ void TargetManager::update(float dt)
 			sf::Vector2f pos;
 			if (spawnRight)
 			{
-				pos = sf::Vector2f(view->getSize().x - randX - 310.0f, randY + 350.0f);
+				pos = sf::Vector2f(view->getSize().x - randX - 315.0f, randY + 350.0f);
 			}
 			else
 			{
-				pos = sf::Vector2f(randX + 310.0f, randY + 350.0f);
+				pos = sf::Vector2f(randX + 315.0f, randY + 350.0f);
 			}
 			spawnTarget(playerP, pos);
 			spawnTimer = 2.0f;
