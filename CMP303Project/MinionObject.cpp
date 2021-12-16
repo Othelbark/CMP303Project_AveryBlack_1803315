@@ -26,9 +26,6 @@ MinionObject::MinionObject()
 	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
 	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
-	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
-	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
-	deathAni.addFrame(sf::IntRect(350, 50, 50, 50));
 	deathAni.setLooping(false);
 	deathAni.setFrameSpeed(0.06f);
 
@@ -38,7 +35,7 @@ MinionObject::MinionObject()
 	float tileScaleFactor = 1.5f;
 
 	setSize(sf::Vector2f(50 * tileScaleFactor, 50 * tileScaleFactor));
-	setCollisionBox(17 * tileScaleFactor, 17 * tileScaleFactor, 16 * tileScaleFactor, 33 * tileScaleFactor);
+	setCollisionBox(14 * tileScaleFactor, 17 * tileScaleFactor, 22 * tileScaleFactor, 33 * tileScaleFactor);
 
 	speed = 80;
 }

@@ -121,7 +121,7 @@ void ProjectileManager::getStates(sf::Packet& packet, float timeNow)
 	}
 }
 
-void ProjectileManager::checkMapCollision(GameObject* mapObject)
+void ProjectileManager::checkBaseCollisions(GameObject* mapObject)
 {
 
 	for (auto pair : localProjectiles)
@@ -196,7 +196,6 @@ void ProjectileManager::checkUnitCollision(GameObject* object)
 
 bool ProjectileManager::checkTargetCollision(TargetObject* target)
 {
-	bool localHit = false;
 	// for each projectile
 	for (auto pair : localProjectiles)
 	{
@@ -212,11 +211,9 @@ bool ProjectileManager::checkTargetCollision(TargetObject* target)
 					target->collisionResponse(pair.second);
 					pair.second->collisionResponse(target);
 
-					localHit = true;
-
 					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
 					audio->playSoundbyName("hitting_enemy");
-					return localHit;
+					return true;
 				}
 			}
 		}
@@ -238,13 +235,13 @@ bool ProjectileManager::checkTargetCollision(TargetObject* target)
 
 					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
 					audio->playSoundbyName("hitting_enemy");
-					return localHit;
+					return false;
 				}
 			}
 		}
 	}
 
-	return localHit;
+	return false;
 }
 
 void ProjectileManager::checkMinionCollision(GameObject* minion)

@@ -78,10 +78,12 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	towerLeftBack.setTexture(&towerLeftBackTexture);
 	towerLeftBack.setSize(sf::Vector2f(350, 500));
 	towerLeftBack.setPosition(sf::Vector2f(0, 220));
+	towerLeftBack.setCollisionBox(0, 300, 160, 200);
 	towerRightBackTexture.loadFromFile("gfx/Back_layer_tower_right.png");
 	towerRightBack.setTexture(&towerRightBackTexture);
 	towerRightBack.setSize(sf::Vector2f(350, 500));
 	towerRightBack.setPosition(sf::Vector2f(930, 220));
+	towerRightBack.setCollisionBox(190, 300, 160, 200);
 
 	// towers front
 	towerLeftFrontTexture.loadFromFile("gfx/Front_layer_tower_left.png");
@@ -115,6 +117,19 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 
 
 	// UI
+	leftBaseHealthTexture.loadFromFile("gfx/Player_1_Health.png");
+	leftBaseHealthDisplay.setSize(sf::Vector2f(150.0f, 55.0f));
+	leftBaseHealthDisplay.setPosition(5.0f, 5.0f);
+	leftBaseHealthDisplay.setTexture(&leftBaseHealthTexture);
+	leftBaseHealthDisplay.setTextureRect(sf::IntRect(0, 0, 150, 55));
+
+	rightBaseHealthTexture.loadFromFile("gfx/Player_2_Health.png");
+	rightBaseHealthDisplay.setSize(sf::Vector2f(150.0f, 55.0f));
+	rightBaseHealthDisplay.setPosition(view.getSize().x - rightBaseHealthDisplay.getSize().x - 5.0f, 5.0f);
+	rightBaseHealthDisplay.setTexture(&rightBaseHealthTexture);
+	rightBaseHealthDisplay.setTextureRect(sf::IntRect(0, 0, 150, 55));
+
+
 	if (!font.loadFromFile("font/arial.ttf"))
 	{
 		std::cout << "Error loading font\n";
@@ -295,6 +310,24 @@ void GameLevel::giveStates(sf::Packet statesPacket)
 			minionManager.giveState(state);
 		}
 	}
+
+	sf::Uint8 otherBaseHealth;
+	statesPacket >> otherBaseHealth;
+
+	sf::RectangleShape* otherBaseHealthDisplay;
+	if (networkState->getCurrentState() == NState::CONNECTED) //not host
+		otherBaseHealthDisplay = &leftBaseHealthDisplay;
+	else
+		otherBaseHealthDisplay = &rightBaseHealthDisplay;
+
+	if (otherBaseHealth == 3)
+		otherBaseHealthDisplay->setTextureRect(sf::IntRect(0, 0, 150, 55));
+	else if (otherBaseHealth == 2)
+		otherBaseHealthDisplay->setTextureRect(sf::IntRect(0, 55, 150, 55));
+	else if (otherBaseHealth == 1)
+		otherBaseHealthDisplay->setTextureRect(sf::IntRect(0, 110, 150, 55));
+	else
+		otherBaseHealthDisplay->setTextureRect(sf::IntRect(0, 165, 150, 55));
 }
 
 sf::Packet GameLevel::getStates(float timeNow)
@@ -322,6 +355,8 @@ sf::Packet GameLevel::getStates(float timeNow)
 	targetManager.getStates(statesPacket, timeNow);
 	minionManager.getStates(statesPacket, timeNow);
 
+	statesPacket << (sf::Uint8)baseHealth;
+
 	return statesPacket;
 }
 
@@ -343,8 +378,8 @@ void GameLevel::updateGameStateAndButtons(float dt)
 		}
 	}
 
-	//if player is not alive
-	if (!player.isAlive() && levelState != LevelState::LOST) // TODO lose condition
+	//if player is not alive or base is dead
+	if ((!player.isAlive() || baseHealth <= 0)&& levelState != LevelState::LOST) 
 	{
 		// level is lost
 		gameState->setCurrentState(State::QUITING);
@@ -406,7 +441,27 @@ void GameLevel::updateGame(float dt)
 
 	minionManager.update(dt);
 	minionManager.checkProjectileCollisions(&projectileManager);
+	if (networkState->getCurrentState() == NState::CONNECTED) //not host
+		baseHealth -= minionManager.checkBaseCollisions(&towerRightBack);
+	else
+		baseHealth -= minionManager.checkBaseCollisions(&towerLeftBack);
 
+	sf::RectangleShape* thisBaseHealthDisplay;
+	if (networkState->getCurrentState() == NState::CONNECTED) //not host
+		thisBaseHealthDisplay = &rightBaseHealthDisplay;
+	else
+		thisBaseHealthDisplay = &leftBaseHealthDisplay;
+
+	if (baseHealth == 3)
+		thisBaseHealthDisplay->setTextureRect(sf::IntRect(0, 0, 150, 55));
+	else if (baseHealth == 2)
+		thisBaseHealthDisplay->setTextureRect(sf::IntRect(0, 55, 150, 55));
+	else if (baseHealth == 1)
+		thisBaseHealthDisplay->setTextureRect(sf::IntRect(0, 110, 150, 55));
+	else
+		thisBaseHealthDisplay->setTextureRect(sf::IntRect(0, 165, 150, 55));
+
+	//Player collisisons
 	if (Collision::checkBoundingBox(&player, &towerLeftFront))
 	{
 		player.collisionResponse(&towerLeftFront);
@@ -429,6 +484,10 @@ void GameLevel::updateGame(float dt)
 
 void GameLevel::drawUI()
 {
+	//draw health displays
+	window->draw(leftBaseHealthDisplay);
+	window->draw(rightBaseHealthDisplay);
+
 	//draw the menu if the game is not playing
 	if (levelState != LevelState::PLAYING)
 	{

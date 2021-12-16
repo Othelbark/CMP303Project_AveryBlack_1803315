@@ -29,7 +29,7 @@ public:
 	void giveState(ObjectState state);
 	void getStates(sf::Packet& packet, float timeNow);
 
-	void checkMapCollision(GameObject* mapObject);
+	void checkBaseCollisions(GameObject* mapObject);
 	void checkUnitCollision(GameObject* object);
 	bool checkTargetCollision(TargetObject* target);
 	void checkMinionCollision(GameObject* minion);

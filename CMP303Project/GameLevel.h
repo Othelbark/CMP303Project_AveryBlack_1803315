@@ -20,7 +20,7 @@ constexpr sf::Uint8 TIME_PACKET = 1; //Structure after type: (float) time sent
 constexpr sf::Uint8 TIME_RESPONSE_PACKET = 2; //Structure after type: (float) time given, (float) time response sent
 constexpr sf::Uint8 GAME_START_PACKET = 3; //Structure after type: repeat type, (float) gameTime to start
 constexpr sf::Uint8 QUIT_GAME_PACKET = 4; //Structure after type: repeat type
-constexpr sf::Uint8 GAMEOBJECT_STATES_PACKET = 5; //Structure after type: repeat type, (Uint8) Number of gameobject states, gameobject states...
+constexpr sf::Uint8 GAMEOBJECT_STATES_PACKET = 5; //Structure after type: repeat type, (Uint8) Number of gameobject states, gameobject states..., (Uint8) base health
 #endif // !packetDefinitions
 
 
@@ -93,6 +93,11 @@ protected:
 	GameObject playersStayOnTowers;
 
 	// UI objects
+	sf::RectangleShape leftBaseHealthDisplay;
+	sf::Texture leftBaseHealthTexture;
+	sf::RectangleShape rightBaseHealthDisplay;
+	sf::Texture rightBaseHealthTexture;
+
 	sf::Font font;
 	sf::Text pauseScreenText;
 

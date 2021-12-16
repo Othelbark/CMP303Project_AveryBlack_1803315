@@ -18,7 +18,7 @@ void LevelMapManager::drawMap(sf::RenderWindow* window)
 	}
 }
 
-void LevelMapManager::checkMapCollision(GameObject* object)
+void LevelMapManager::checkBaseCollisions(GameObject* object)
 {
 	for (int i = 0; i < mapSegments.size(); i++)
 	{
