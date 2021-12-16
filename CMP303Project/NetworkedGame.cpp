@@ -27,6 +27,8 @@ NetworkedGame::NetworkedGame()
 
 	// Imgui variables
 	IPBytesAsInts[0] = 127; IPBytesAsInts[1] = 0; IPBytesAsInts[2] = 0; IPBytesAsInts[3] = 1;// Local imgui compatable version of IPBytes
+	hostPortAsInt = 55555;
+	clientPortAsInt = 55554;
 	tickrateTestTime = 0;
 	displayGUIInGame = false;
 
@@ -418,6 +420,26 @@ void NetworkedGame::gui()
 			ImGui::Text("Game will start in: %f", startTime - totalTime);
 		}
 		
+		if (ImGui::CollapsingHeader("Ports"))
+		{
+			if (!networkingThreadOutput.connected && !networkingThreadOutput.connectingToHost && !networkingThreadOutput.hosting)
+			{
+				if (ImGui::InputInt("Host Port", &hostPortAsInt))
+				{
+					networkingThreadInput.hostPort = hostPortAsInt;
+				}
+				if (ImGui::InputInt("Local Port (if not host)", &clientPortAsInt))
+				{
+					networkingThreadInput.clientPort = clientPortAsInt;
+				}
+			}
+			else
+			{
+				ImGui::Text("Host Port: %i", hostPortAsInt);
+				ImGui::Text("Local Port: %i (if not host)", clientPortAsInt);
+				ImGui::Text("Disconnect to modify ports");
+			}
+		}
 		if (ImGui::CollapsingHeader("Debug"))
 		{
 			ImGui::Text("Game Time: %f", totalTime);
@@ -450,6 +472,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 	socket.setBlocking(false);
 
 	sf::IpAddress* otherIP = nullptr;
+	unsigned short otherPort;
 
 	float timeOfLastPacket = 0;
 	const float maxTimeWithNoPackets = 2.5f;
@@ -464,7 +487,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		{
 			// bind the socket
 			socket.unbind();
-			if (socket.bind(HOST_PORT) != sf::Socket::Done)
+			if (socket.bind(in->hostPort) != sf::Socket::Done)
 			{
 				die("Failed to bind socket as host");
 			}
@@ -482,12 +505,13 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 		{
 			// bind the socket to a port
 			socket.unbind();
-			if (socket.bind(CLIENT_PORT) != sf::Socket::Done)
+			if (socket.bind(in->clientPort) != sf::Socket::Done)
 			{
 				die("Failed to bind socket as client");
 			}
 
 			otherIP = new sf::IpAddress(in->IPBytes[0], in->IPBytes[1], in->IPBytes[2], in->IPBytes[3]);
+			otherPort = in->hostPort;
 
 			out->connectingToHost = true;
 			out->hosting = false;
@@ -503,10 +527,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			{
 				sf::Packet disconnectPacket;
 				disconnectPacket << sf::Uint8(0);
-				if (out->connectingToHost)
-					socket.send(disconnectPacket, *otherIP, HOST_PORT);
-				else
-					socket.send(disconnectPacket, *otherIP, CLIENT_PORT);
+				socket.send(disconnectPacket, *otherIP, otherPort);
 			}
 
 
@@ -545,19 +566,16 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			if (otherIP != nullptr)
 			{
 				sf::Packet pingPacket;
-				if (out->connectingToHost)
-					socket.send(pingPacket, *otherIP, HOST_PORT);
-				else
-					socket.send(pingPacket, *otherIP, CLIENT_PORT);
+				socket.send(pingPacket, *otherIP, otherPort);
 			}
 
 			//recive incomming pings
 			sf::IpAddress potentialIP;
-			unsigned short port;
+			unsigned short potentialPort;
 			sf::Packet receivedPingPacket;
 
 			//Non-blocking receive
-			if (socket.receive(receivedPingPacket, potentialIP, port) != sf::Socket::NotReady)
+			if (socket.receive(receivedPingPacket, potentialIP, potentialPort) != sf::Socket::NotReady)
 			{
 				//If packet is a disconnection packet
 				if (receivedPingPacket.getDataSize() == 1)
@@ -592,9 +610,11 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 					{
 						otherIP = new sf::IpAddress(potentialIP);
 
+						otherPort = potentialPort;
+
 
 						sf::Packet pingPacket;
-						socket.send(pingPacket, *otherIP, CLIENT_PORT);
+						socket.send(pingPacket, *otherIP, otherPort);
 						out->connected = true;
 						timeOfLastPacket = timeThisLoop;
 						out->message = "Connected, synchronising...";
@@ -623,7 +643,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			timePacket << TIME_PACKET;
 			timePacket << timeThisLoop;
 
-			socket.send(timePacket, *otherIP, HOST_PORT);
+			socket.send(timePacket, *otherIP, otherPort);
 		}
 
 
@@ -658,7 +678,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 						if (out->hosting && !out->synchronised) //the only oportunity for a false connection due to a dropped packet is as the host before synchonisation
 						{
 							sf::Packet pingPacket;
-							socket.send(pingPacket, *otherIP, CLIENT_PORT);
+							socket.send(pingPacket, *otherIP, otherPort);
 						}
 					}
 					else if (inboundPacket.getDataSize() == 1) // Disconection packet
@@ -702,7 +722,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 								timeResponsePacket << timeSent;
 								timeResponsePacket << timeThisLoop;
 
-								socket.send(timeResponsePacket, *otherIP, CLIENT_PORT);
+								socket.send(timeResponsePacket, *otherIP, otherPort);
 
 								out->synchronised = true; //assume synchronised
 								out->message = "Connected and Synchronised";
@@ -780,10 +800,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 					{
 						sf::Packet disconnectPacket;
 						disconnectPacket << sf::Uint8(0);
-						if (out->connectingToHost)
-							socket.send(disconnectPacket, *otherIP, HOST_PORT);
-						else
-							socket.send(disconnectPacket, *otherIP, CLIENT_PORT);
+						socket.send(disconnectPacket, *otherIP, otherPort);
 					}
 
 					//disconect
@@ -814,14 +831,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			{
 
 				sf::Packet packet = in->inputQueue.dequeue();
-				if (out->hosting)
-				{
-					socket.send(packet, *otherIP, CLIENT_PORT);
-				}
-				else
-				{
-					socket.send(packet, *otherIP, HOST_PORT);
-				}
+				socket.send(packet, *otherIP, otherPort);
 			}
 		}
 
@@ -837,10 +847,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 	{
 		sf::Packet disconnectPacket;
 		disconnectPacket << sf::Uint8(0);
-		if (out->connectingToHost)
-			socket.send(disconnectPacket, *otherIP, HOST_PORT);
-		else
-			socket.send(disconnectPacket, *otherIP, CLIENT_PORT);
+		socket.send(disconnectPacket, *otherIP, otherPort);
 	}
 	delete(otherIP);
 }

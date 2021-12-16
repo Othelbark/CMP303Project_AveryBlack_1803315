@@ -27,12 +27,14 @@ using std::unique_lock;
 // Structs
 struct NetworkingThreadInput
 {
-	std::atomic_bool makeConnection = false;
 	std::atomic<sf::Uint8> IPBytes[4] = { 127, 0, 0, 1 };
+	std::atomic<unsigned short> hostPort = 55555;
+	std::atomic<unsigned short> clientPort = 55554;
 
+	std::atomic_bool makeConnection = false;
 	std::atomic_bool makeHost = false;
 
-	std::atomic_bool breakConnection = false;
+	std::atomic_bool breakConnection = true;
 	std::atomic_bool quiting = false;
 
 	SafeQueue<sf::Packet> inputQueue;
@@ -57,8 +59,6 @@ struct NetworkingThreadOutput
 // Definetions 
 constexpr unsigned int TARGET_FRAMRATE = 60;
 constexpr float TICKRATE = 20;
-constexpr unsigned short HOST_PORT = 55555;
-constexpr unsigned short CLIENT_PORT = 55554;
 
 #ifndef PacketDefinitions
 #define PacketDefinitions
@@ -124,6 +124,8 @@ private:
 
 	// imgui variables
 	int IPBytesAsInts[4]; // imgui compatable version of IPBytes
+	int hostPortAsInt; // imgui compatable version
+	int clientPortAsInt; // imgui compatable version
 	float tickrateTestTime;
 	bool displayGUIInGame;
 
