@@ -86,6 +86,8 @@ void MinionManager::update(float dt)
 						localMPair.second->collisionResponse(remoteMPair.second);
 						remoteMPair.second->collisionResponse(localMPair.second);
 
+						audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
+						audio->playSoundbyName("hitting_enemy");
 					}
 				}
 			}
@@ -200,6 +202,8 @@ void MinionManager::checkTheirBaseCollisions(GameObject* baseObject)
 			if (Collision::checkBoundingBox(baseObject, pair.second))
 			{
 				pair.second->collisionResponse(baseObject);
+
+				audio->playSoundbyName("ting");
 			}
 		}
 	}

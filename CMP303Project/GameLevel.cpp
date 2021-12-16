@@ -181,9 +181,6 @@ GameLevel::GameLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 	quitButton.setTextAndInitalise("Resign Match");
 
 
-	//play music
-	audio->playMusicbyName("stealth");
-
 	baseHealth = 3;
 }
 
@@ -373,15 +370,6 @@ void GameLevel::updateGameStateAndButtons(float dt)
 		levelFinished = true;
 	}
 
-	//if level is not won
-	if (levelState != LevelState::WON)
-	{
-		//if player has reached goal
-		if (false) // TODO win condition
-		{
-			levelState = LevelState::WON;
-		}
-	}
 
 	//if player is not alive or base is dead
 	if ((!player.isAlive() || baseHealth <= 0)&& levelState != LevelState::LOST) 
@@ -404,19 +392,6 @@ void GameLevel::updateGameStateAndButtons(float dt)
 		{
 			continueButton.setClicked(false);
 			gameState->setCurrentState(nextLevel);
-
-			// If this is not the last level
-			if (nextLevel != State::CREDITS)
-			{
-				//Restart music for the new level
-				audio->playMusicbyName("stealth");
-			}
-			// If this is the last level
-			else
-			{
-				// Set music to a spsific time for the credits
-				audio->getMusic()->setPlayingOffset(sf::seconds(345));
-			}
 		}
 		else if (quitButton.getClicked())
 		{

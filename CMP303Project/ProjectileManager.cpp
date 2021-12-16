@@ -133,6 +133,7 @@ void ProjectileManager::checkMapCollisions(GameObject* mapObject)
 			if (Collision::checkBoundingBox(mapObject, pair.second))
 			{
 				pair.second->collisionResponse(mapObject);
+
 			}
 		}
 	}
@@ -144,6 +145,7 @@ void ProjectileManager::checkMapCollisions(GameObject* mapObject)
 			if (Collision::checkBoundingBox(mapObject, pair.second))
 			{
 				pair.second->collisionResponse(mapObject);
+
 			}
 		}
 	}
@@ -211,8 +213,8 @@ bool ProjectileManager::checkTargetCollision(TargetObject* target)
 					target->collisionResponse(pair.second);
 					pair.second->collisionResponse(target);
 
-					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
-					audio->playSoundbyName("hitting_enemy");
+					audio->getSound("stab")->setPlayingOffset(sf::seconds(0.3f));
+					audio->playSoundbyName("stab");
 					return true;
 				}
 			}
@@ -233,8 +235,8 @@ bool ProjectileManager::checkTargetCollision(TargetObject* target)
 					target->collisionResponse(pair.second);
 					pair.second->collisionResponse(target);
 
-					audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
-					audio->playSoundbyName("hitting_enemy");
+					audio->getSound("stab")->setPlayingOffset(sf::seconds(0.3f));
+					audio->playSoundbyName("stab");
 					return false;
 				}
 			}
@@ -257,6 +259,8 @@ void ProjectileManager::checkMinionCollision(GameObject* minion)
 			{
 				minion->collisionResponse(pair.second);
 
+				audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
+				audio->playSoundbyName("hitting_enemy");
 				return;
 			}
 
@@ -273,6 +277,8 @@ void ProjectileManager::checkMinionCollision(GameObject* minion)
 			{
 				minion->collisionResponse(pair.second);
 
+				audio->getSound("hitting_enemy")->setPlayingOffset(sf::seconds(0.2f));
+				audio->playSoundbyName("hitting_enemy");
 				return;
 
 			}

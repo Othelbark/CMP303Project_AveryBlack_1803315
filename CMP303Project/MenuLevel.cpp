@@ -88,18 +88,6 @@ MenuLevel::MenuLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioMana
 
 
 	// Load music and sound effects
-	audio->addMusic("sfx/Telegraphy_-_03_-_Stealth_Camp.ogg", "stealth");
-	audio->getMusic()->setVolume(12);
-
-	audio->addSound("sfx/jump.ogg", "jump");
-	audio->getSound("jump")->setPitch(1.5);
-	audio->getSound("jump")->setVolume(25);
-
-	audio->addSound("sfx/whoosh.ogg", "whoosh");
-	audio->getSound("whoosh")->setVolume(19);
-
-	audio->addSound("sfx/hitting_wood.ogg", "hitting_wood");
-	audio->getSound("hitting_wood")->setVolume(5);
 
 	audio->addSound("sfx/stab.ogg", "hitting_enemy");
 	audio->getSound("hitting_enemy")->setVolume(25);

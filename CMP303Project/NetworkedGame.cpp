@@ -361,7 +361,7 @@ void NetworkedGame::gui()
 		//ImGui stuff
 		ImGui::SFML::Update(*window, deltaTime);
 
-		ImGui::Begin("Sample window"); // begin window
+		ImGui::Begin("Network Controls"); // begin window
 
 		if (!networkingThreadOutput.connected) //if not connected or hosting
 		{
@@ -417,16 +417,17 @@ void NetworkedGame::gui()
 		{
 			ImGui::Text("Game will start in: %f", startTime - totalTime);
 		}
-		else
+		
+		if (ImGui::CollapsingHeader("Debug"))
 		{
 			ImGui::Text("Game Time: %f", totalTime);
-		}
-		ImGui::Text("Framerate: %f, Target: %i", 1.0f / deltaTime.asSeconds(), TARGET_FRAMRATE);
-		ImGui::Text("Tickrate: %f, Target: %i", (networkingThreadOutput.ticks / (totalTime - tickrateTestTime)), (int)TICKRATE);
-		if (ImGui::Button("Reset Tickrate Tracker"))
-		{
-			networkingThreadOutput.ticks = 0;
-			tickrateTestTime = totalTime;
+			ImGui::Text("Framerate: %f, Target: %i", 1.0f / deltaTime.asSeconds(), TARGET_FRAMRATE);
+			ImGui::Text("Tickrate: %f, Target: %i", (networkingThreadOutput.ticks / (totalTime - tickrateTestTime)), (int)TICKRATE);
+			if (ImGui::Button("Reset Tickrate Tracker"))
+			{
+				networkingThreadOutput.ticks = 0;
+				tickrateTestTime = totalTime;
+			}
 		}
 
 
@@ -467,6 +468,7 @@ void NetworkedGame::networking(float* time, sf::RenderWindow* window, Networking
 			{
 				die("Failed to bind socket as host");
 			}
+
 			delete(otherIP);
 			otherIP = nullptr;
 			out->connectingToHost = false;
