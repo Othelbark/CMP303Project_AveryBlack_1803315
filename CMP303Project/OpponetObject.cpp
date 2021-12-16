@@ -3,6 +3,7 @@
 OpponetObject::OpponetObject()
 {
 	predictionType = PredictionType::NONE;
+	framesOfNotWalking = 0;
 }
 
 OpponetObject::~OpponetObject()
@@ -60,27 +61,27 @@ void OpponetObject::update(float dt)
 
 	if (velocity.x > 0)
 	{
-		notWalkingLastFrame = false;
+		framesOfNotWalking = 0;
 		isWalking = true;
 		if (!isAiming)
 			isFlipped = false;
 	}
 	else if (velocity.x < 0)
 	{
-		notWalkingLastFrame = false;
+		framesOfNotWalking = 0;
 		isWalking = true;
 		if (!isAiming)
 			isFlipped = true;
 	}
 	else
 	{
-		if (notWalkingLastFrame) //only stop walking after two frames
+		if (framesOfNotWalking >= 2) //only stop walking after three frames
 		{
 			isWalking = false;
 		}
 		else
 		{
-			notWalkingLastFrame = true;
+			framesOfNotWalking += 1;
 		}
 	}
 

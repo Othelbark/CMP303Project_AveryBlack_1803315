@@ -223,7 +223,10 @@ void RemoteObject::predictQuadratic(float gameTime)
 	float rotationalVelocity1 = rotationDifference1 / (state1.time - state2.time);
 
 	sf::Vector2f acceleration = (velocity0 - velocity1) / (state0.time - state1.time);
-	float rotationalAcceleration = (rotationalVelocity0 - rotationalVelocity1) / (state0.time - state1.time);
+	float rotationVelocityDifference = rotationalVelocity0 - rotationalVelocity1;
+	if (abs(rotationVelocityDifference) > 180.0f)
+		rotationVelocityDifference = fixRelativeRotation(rotationVelocityDifference);
+	float rotationalAcceleration = rotationVelocityDifference / (state0.time - state1.time);
 
 	sf::Vector2f targetPosition = state0.pos + (velocity0 * timeSinceLastUpdate) + (0.5f * acceleration * timeSinceLastUpdate * timeSinceLastUpdate);
 	float targetRotation = state0.rotation + (rotationalVelocity0 * timeSinceLastUpdate) + (0.5f * rotationalAcceleration * timeSinceLastUpdate * timeSinceLastUpdate);
@@ -260,7 +263,10 @@ void RemoteObject::predictQuadratic(float gameTime)
 	float rotationalVelocityFP1 = rotationDifferenceFP1 / (pre1.time - pre2.time);
 
 	sf::Vector2f accelerationFP = (velocityFP0 - velocityFP1) / (pre0.time - pre1.time);
-	float rotationalAccelerationFP = (rotationalVelocityFP0 - rotationalVelocityFP1) / (pre0.time - pre1.time);
+	float rotationVelocityDifferenceFP = rotationalVelocityFP0 - rotationalVelocityFP1;
+	if (abs(rotationVelocityDifferenceFP) > 180.0f)
+		rotationVelocityDifferenceFP = fixRelativeRotation(rotationVelocityDifferenceFP);
+	float rotationalAccelerationFP = rotationVelocityDifferenceFP / (pre0.time - pre1.time);
 
 	sf::Vector2f positionFP = pre0.pos + (velocityFP0 * timeSinceLastPrediction) + (0.5f * accelerationFP * timeSinceLastPrediction * timeSinceLastPrediction);
 	float rotationFP = pre0.rotation + (rotationalVelocityFP0 * timeSinceLastPrediction) + (0.5f * rotationalAccelerationFP * timeSinceLastPrediction * timeSinceLastPrediction);
