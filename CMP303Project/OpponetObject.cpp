@@ -60,19 +60,28 @@ void OpponetObject::update(float dt)
 
 	if (velocity.x > 0)
 	{
+		notWalkingLastFrame = false;
 		isWalking = true;
 		if (!isAiming)
 			isFlipped = false;
 	}
 	else if (velocity.x < 0)
 	{
+		notWalkingLastFrame = false;
 		isWalking = true;
 		if (!isAiming)
 			isFlipped = true;
 	}
 	else
 	{
-		isWalking = false;
+		if (notWalkingLastFrame) //only stop walking after two frames
+		{
+			isWalking = false;
+		}
+		else
+		{
+			notWalkingLastFrame = true;
+		}
 	}
 
 	findAndSetAnimation();

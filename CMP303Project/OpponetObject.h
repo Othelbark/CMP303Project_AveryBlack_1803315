@@ -16,5 +16,6 @@ public:
 	void collisionResponse(GameObject* collider) override;
 
 protected:
+	bool notWalkingLastFrame;
 };
 
